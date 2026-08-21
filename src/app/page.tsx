@@ -18,6 +18,11 @@ import {
   Send,
   MapPin,
   Clock,
+  Play,
+  PlayCircle,
+  X,
+  Camera,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -31,6 +36,7 @@ export default function HomePage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<{ title: string; category: string; description: string; poster: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +74,37 @@ export default function HomePage() {
     }
   };
 
+  const videoReels = [
+    {
+      title: 'Smart Classroom & Interactive Learning Experience',
+      category: 'Academic Technology',
+      duration: '2:15',
+      poster: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&auto=format&fit=crop&q=80',
+      description: 'Experience how our digital smart boards and student presentations transform daily classroom understanding in Bhopal.',
+    },
+    {
+      title: 'Kindergarten Monsoon & Rainy Day Festivities',
+      category: 'Early Childhood',
+      duration: '1:45',
+      poster: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=800&auto=format&fit=crop&q=80',
+      description: 'Little scholars enjoying color-themed rainy day activities, umbrella rhymes, paper boats, and sensory play.',
+    },
+    {
+      title: 'Grand Independence Day Celebration & March Past',
+      category: 'National Festivals',
+      duration: '3:20',
+      poster: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?w=800&auto=format&fit=crop&q=80',
+      description: 'Patriotic parade, flag hoisting ceremony by Chairman Surendra Singh Baghel, and cultural stage performances.',
+    },
+    {
+      title: 'Science Lab & Robotics Innovation Conclave',
+      category: 'STEM & Practical',
+      duration: '2:50',
+      poster: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80',
+      description: 'Hands-on practical physics experiments, math symmetry art projects, and robotics microcontroller demonstrations.',
+    },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* 1. HERO SECTION */}
@@ -90,7 +127,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-lg text-slate-300 leading-relaxed max-w-2xl">
-              Welcome to <strong>K.A.S. International School, Bhopal</strong>. We provide an inspiring learning ecosystem where academic rigor meets modern STEM innovation, creative arts, and global moral leadership.
+              Welcome to <strong>K.A.S. International School, Bhopal</strong> (Khajuri Kalan Road, Regal Town, BHEL). We provide an inspiring learning ecosystem where academic rigor meets modern STEM innovation, creative arts, and global moral leadership.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -109,10 +146,11 @@ export default function HomePage() {
                 <ChevronRight className="w-4 h-4 text-amber-400" />
               </Link>
               <Link
-                href="/fee-structure"
-                className="bg-transparent hover:bg-white/5 text-slate-300 hover:text-white font-medium px-4 py-3.5 rounded-xl transition-all flex items-center space-x-1 text-sm"
+                href="/gallery"
+                className="bg-transparent hover:bg-white/5 text-amber-300 hover:text-white font-semibold px-4 py-3.5 rounded-xl transition-all flex items-center space-x-1 text-sm border border-amber-400/30"
               >
-                <span>View Fee Schedule</span>
+                <Camera className="w-4 h-4 mr-1 text-amber-400" />
+                <span>Explore Campus Media</span>
               </Link>
             </div>
 
@@ -255,8 +293,129 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. LEADERSHIP & FOUNDER MESSAGE */}
-      <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full">
+      {/* 2. CAMPUS LIFE, PHOTOS & VIDEO REELS SHOWCASE */}
+      <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full space-y-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-3 max-w-2xl">
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider bg-amber-100/70 border border-amber-300 px-3.5 py-1.5 rounded-full inline-flex items-center">
+              <Camera className="w-3.5 h-3.5 mr-1.5 text-amber-700" />
+              Live Campus Media & Video Reels
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F2942] tracking-tight">
+              Life and Learning at K.A.S. International
+            </h2>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Explore authentic glimpses of smart classroom lectures, kindergarten rain celebrations, robotics workshops, Independence Day parades, and sports tournaments captured on our Bhopal campus.
+            </p>
+          </div>
+
+          <Link
+            href="/gallery"
+            className="inline-flex items-center space-x-2 bg-[#0F2942] hover:bg-blue-900 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shrink-0 self-start md:self-auto shadow-sm"
+          >
+            <span>View Full Photo & Video Gallery (18+ Media)</span>
+            <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
+          </Link>
+        </div>
+
+        {/* 4 Video Reels Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {videoReels.map((reel, idx) => (
+            <div
+              key={idx}
+              onClick={() => setSelectedVideo(reel)}
+              className="bg-white rounded-2xl overflow-hidden shadow-xs border border-slate-200 group hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+            >
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={reel.poster}
+                  alt={reel.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                  </div>
+                </div>
+                <span className="absolute bottom-3 right-3 bg-black/80 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md">
+                  {reel.duration}
+                </span>
+                <span className="absolute top-3 left-3 bg-[#0F2942]/90 text-amber-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                  {reel.category}
+                </span>
+              </div>
+
+              <div className="p-4 space-y-1.5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-900 transition-colors line-clamp-2">
+                    {reel.title}
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                    {reel.description}
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-amber-700">
+                  <PlayCircle className="w-3.5 h-3.5 mr-1" />
+                  <span>Click to Watch Reel</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Video Player Modal */}
+        {selectedVideo && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative text-white">
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white p-2"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-md">
+                  {selectedVideo.category}
+                </span>
+                <h3 className="text-xl font-bold text-white">{selectedVideo.title}</h3>
+              </div>
+
+              {/* Simulated Interactive Video Screen */}
+              <div className="relative rounded-2xl overflow-hidden aspect-video bg-black border border-slate-800 flex items-center justify-center group">
+                <img
+                  src={selectedVideo.poster}
+                  alt={selectedVideo.title}
+                  className="w-full h-full object-cover opacity-80"
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 space-y-2">
+                  <p className="text-xs text-slate-200 leading-relaxed max-w-xl">
+                    {selectedVideo.description}
+                  </p>
+                  <div className="flex items-center space-x-3 text-xs text-amber-400 font-mono">
+                    <span>📍 K.A.S. Campus • Bhopal</span>
+                    <span>•</span>
+                    <span>Session 2026-27 Highlights</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <p className="text-xs text-slate-400">Official K.A.S. International School Media Stream</p>
+                <Link
+                  href="/admissions"
+                  className="bg-amber-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-amber-400 transition-colors"
+                >
+                  Schedule Campus Walkthrough &rarr;
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* 3. LEADERSHIP & FOUNDER MESSAGE */}
+      <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full border-t border-slate-200">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center space-x-2 text-blue-900 text-xs font-bold uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-md">
@@ -322,7 +481,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. FOUR ACADEMIC PILLARS */}
+      {/* 4. FOUR ACADEMIC PILLARS */}
       <section className="bg-slate-100 py-16 px-4 sm:px-8 border-y border-slate-200">
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
@@ -395,7 +554,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. ADMISSIONS PROCESS TIMELINE */}
+      {/* 5. ADMISSIONS PROCESS TIMELINE */}
       <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full">
         <div className="text-center space-y-3 max-w-2xl mx-auto mb-12">
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider bg-amber-50 border border-amber-200 px-3 py-1 rounded-md">
@@ -460,7 +619,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. CAMPUS LOCATION & DIRECT CONTACT CTA */}
+      {/* 6. CAMPUS LOCATION & DIRECT CONTACT CTA */}
       <section className="bg-linear-to-r from-[#0F2942] to-[#1E3A8A] text-white py-14 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">

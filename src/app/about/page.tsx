@@ -15,9 +15,44 @@ import {
   Phone,
   Mail,
   ArrowRight,
+  Camera,
+  Play,
 } from 'lucide-react';
 
 export default function AboutPage() {
+  const campusHighlights = [
+    {
+      title: 'Main Academic Campus & Facade',
+      image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&auto=format&fit=crop&q=80',
+      tag: 'Regal Town, Bhopal',
+    },
+    {
+      title: 'Smart Digital Learning Rooms',
+      image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&auto=format&fit=crop&q=80',
+      tag: 'Interactive Tech',
+    },
+    {
+      title: 'Composite Science & STEM Lab',
+      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&auto=format&fit=crop&q=80',
+      tag: 'Physics & Chemistry',
+    },
+    {
+      title: 'Monsoon Play & Activity Wing',
+      image: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=800&auto=format&fit=crop&q=80',
+      tag: 'Kindergarten Zone',
+    },
+    {
+      title: 'Outdoor Sports Pavilion & Turf',
+      image: 'https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=800&auto=format&fit=crop&q=80',
+      tag: 'Athletics & Games',
+    },
+    {
+      title: 'GPS-Tracked Safe Transport Fleet',
+      image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
+      tag: 'Bhopal Transit Routes',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
@@ -107,11 +142,55 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Campus Facilities & Security */}
+        {/* Visual Campus Infrastructure Gallery */}
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <span className="text-xs font-bold text-blue-900 uppercase tracking-wider bg-blue-50 border border-blue-200 px-3 py-1 rounded-md">
+                Bhopal Campus Facilities
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0F2942] mt-1.5">
+                Modern Campus & Learning Spaces
+              </h3>
+            </div>
+            <Link
+              href="/gallery"
+              className="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center space-x-1"
+            >
+              <Camera className="w-4 h-4 mr-1" />
+              <span>Explore All Media Reels & Photos &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {campusHighlights.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-2xl overflow-hidden shadow-xs border border-slate-200 group hover:shadow-md transition-all"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className="absolute top-3 left-3 bg-[#0F2942]/90 text-amber-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">
+                    {item.tag}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <h4 className="font-bold text-sm text-slate-900">{item.title}</h4>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Campus Safety Charter */}
         <div className="bg-linear-to-b from-white to-slate-50 p-8 sm:p-12 rounded-3xl border border-slate-200 space-y-8">
           <div className="max-w-2xl space-y-2">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0F2942]">
-              World-Class Infrastructure in Bhopal
+              Safety, Hygiene & Student Well-Being
             </h3>
             <p className="text-slate-600 text-sm">
               Our campus at Regal Town, BHEL provides a nurturing sanctuary equipped for academic, athletic, and creative distinction.
