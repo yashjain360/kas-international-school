@@ -13,11 +13,15 @@ import {
   FileText,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { TableRowSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function StudentFeesPage() {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<any | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     fetch('/api/fees')
@@ -32,6 +36,8 @@ export default function StudentFeesPage() {
   const totalFees = records.reduce((sum, r) => sum + r.totalAmount, 0);
   const totalPaid = records.filter((r) => r.status === 'paid').reduce((sum, r) => sum + r.paidAmount, 0);
   const balanceDue = totalFees - totalPaid;
+
+  const paginatedRecords = records.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <ErpLayout requiredRole="student">
@@ -69,26 +75,32 @@ export default function StudentFeesPage() {
         </div>
 
         {/* Invoices List */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          {loading ? (
-            <div className="text-center py-16 text-slate-500 text-sm">Loading Fee Invoices...</div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm">No fee statements found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
-                    <th className="py-3 px-4">Invoice Reference</th>
-                    <th className="py-3 px-4">Term & Fee Description</th>
-                    <th className="py-3 px-4">Total Amount</th>
-                    <th className="py-3 px-4">Due Date</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-right">Receipt Voucher</th>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
+                  <th className="py-3 px-4">Invoice Reference</th>
+                  <th className="py-3 px-4">Term & Fee Description</th>
+                  <th className="py-3 px-4">Total Amount</th>
+                  <th className="py-3 px-4">Due Date</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Receipt Voucher</th>
+                </tr>
+              </thead>
+              {loading ? (
+                <TableRowSkeleton cols={6} rows={4} />
+              ) : records.length === 0 ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+                      No fee statements found.
+                    </td>
                   </tr>
-                </thead>
+                </tbody>
+              ) : (
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {records.map((r) => (
+                  {paginatedRecords.map((r) => (
                     <tr key={r._id} className="hover:bg-slate-800/60 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-amber-400">{r.invoiceNo}</td>
                       <td className="py-3.5 px-4">
@@ -119,7 +131,7 @@ export default function StudentFeesPage() {
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setSelectedReceipt(r)}
-                          className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-3 py-1 rounded-md font-bold transition-all text-[11px] inline-flex items-center space-x-1"
+                          className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-3 py-1 rounded-md font-bold transition-all text-[11px] inline-flex items-center space-x-1 cursor-pointer"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           <span>{r.status === 'paid' ? 'Official Receipt' : 'View Statement'}</span>
@@ -128,8 +140,18 @@ export default function StudentFeesPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              )}
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {!loading && records.length > pageSize && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={records.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           )}
         </div>
 
@@ -139,7 +161,7 @@ export default function StudentFeesPage() {
             <div className="bg-white text-slate-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative border border-slate-200">
               <button
                 onClick={() => setSelectedReceipt(null)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -219,7 +241,7 @@ export default function StudentFeesPage() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 shadow-sm"
+                  className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 shadow-sm cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print Receipt</span>

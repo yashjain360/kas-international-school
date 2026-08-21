@@ -52,7 +52,7 @@ export default function FacultyDashboardPage() {
           <div className="flex items-center space-x-3">
             <Link
               href="/erp/faculty/attendance"
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2"
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 cursor-pointer"
             >
               <CalendarCheck className="w-4 h-4" />
               <span>Mark Today's Attendance</span>
@@ -64,7 +64,7 @@ export default function FacultyDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <Link
             href="/erp/faculty/attendance"
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-emerald-500/40 transition-all group"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-emerald-500/40 transition-all group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
               <CalendarCheck className="w-5 h-5" />
@@ -79,7 +79,7 @@ export default function FacultyDashboardPage() {
 
           <Link
             href="/erp/faculty/gradebook"
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-amber-500/40 transition-all group"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-amber-500/40 transition-all group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
               <Award className="w-5 h-5" />
@@ -94,7 +94,7 @@ export default function FacultyDashboardPage() {
 
           <Link
             href="/erp/faculty/timetable"
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-blue-500/40 transition-all group"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 hover:border-blue-500/40 transition-all group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
               <Clock className="w-5 h-5" />
@@ -119,7 +119,15 @@ export default function FacultyDashboardPage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-8 text-slate-500 text-xs">Loading schedule...</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div key={idx} className="p-4 rounded-xl bg-slate-800/40 border border-slate-800 animate-pulse space-y-2">
+                  <div className="h-3 w-20 bg-slate-700 rounded-md"></div>
+                  <div className="h-4 w-32 bg-slate-700 rounded-md"></div>
+                  <div className="h-3 w-24 bg-slate-800 rounded-md"></div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {timetable.map((p, idx) => (

@@ -13,12 +13,16 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { CardSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function AdminBroadcastsPage() {
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 4;
 
   const [form, setForm] = useState({
     subject: '',
@@ -28,6 +32,7 @@ export default function AdminBroadcastsPage() {
   });
 
   const fetchBroadcasts = async () => {
+    setLoading(true);
     try {
       const res = await fetch('/api/broadcasts');
       const data = await res.json();
@@ -74,6 +79,8 @@ export default function AdminBroadcastsPage() {
       setSending(false);
     }
   };
+
+  const paginatedBroadcasts = broadcasts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <ErpLayout requiredRole="admin">
@@ -124,7 +131,7 @@ export default function AdminBroadcastsPage() {
                 <select
                   value={form.recipientType}
                   onChange={(e) => setForm({ ...form, recipientType: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-amber-400"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-amber-400 cursor-pointer"
                 >
                   <option value="all">All Stakeholders (Students, Parents, Faculty & Leads)</option>
                   <option value="students">All Enrolled Students & Parents</option>
@@ -140,7 +147,7 @@ export default function AdminBroadcastsPage() {
                   <select
                     value={form.targetGrade}
                     onChange={(e) => setForm({ ...form, targetGrade: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white cursor-pointer"
                   >
                     <option value="Grade 10">Grade 10</option>
                     <option value="Grade 9">Grade 9</option>
@@ -178,7 +185,7 @@ export default function AdminBroadcastsPage() {
               <button
                 type="submit"
                 disabled={sending}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50"
+                className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 <span>{sending ? 'Transmitting via SMTP...' : 'Dispatch Broadcast Email'}</span>
@@ -187,40 +194,62 @@ export default function AdminBroadcastsPage() {
           </div>
 
           {/* Broadcast Delivery History */}
-          <div className="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-7 space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-base text-white">Broadcast Transmission Logs</h3>
-              <span className="text-xs text-slate-400">SMTP: info@thewebvale.com</span>
+          <div className="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-7 space-y-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <h3 className="font-bold text-base text-white">Broadcast Transmission Logs</h3>
+                <span className="text-xs text-slate-400">SMTP: info@thewebvale.com</span>
+              </div>
+
+              {loading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-slate-800/40 border border-slate-800 animate-pulse space-y-2">
+                      <div className="h-3 w-20 bg-slate-700 rounded-md"></div>
+                      <div className="h-4 w-48 bg-slate-700 rounded-md"></div>
+                      <div className="h-3 w-full bg-slate-800 rounded-md"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : broadcasts.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 text-xs">No broadcast emails sent yet.</div>
+              ) : (
+                <div className="space-y-3">
+                  {paginatedBroadcasts.map((b) => (
+                    <div key={b._id} className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="bg-amber-400/20 text-amber-300 font-bold uppercase text-[10px] px-2 py-0.5 rounded-md">
+                          {b.recipientType}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(b.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <h4 className="font-bold text-white text-sm">{b.subject}</h4>
+                      <p className="text-slate-400 truncate text-[11px]">{b.messageHtml.replace(/<[^>]*>?/gm, '')}</p>
+
+                      <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-400">Sent by: <strong>{b.sentBy}</strong></span>
+                        <span className="text-emerald-400 font-bold">
+                          {b.successfulDeliveries || b.totalRecipients} Delivered
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {loading ? (
-              <div className="text-center py-12 text-slate-500 text-xs">Loading transmission history...</div>
-            ) : broadcasts.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 text-xs">No broadcast emails sent yet.</div>
-            ) : (
-              <div className="space-y-3 max-h-[440px] overflow-y-auto pr-1">
-                {broadcasts.map((b) => (
-                  <div key={b._id} className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="bg-amber-400/20 text-amber-300 font-bold uppercase text-[10px] px-2 py-0.5 rounded-md">
-                        {b.recipientType}
-                      </span>
-                      <span className="text-[10px] text-slate-400">
-                        {new Date(b.createdAt).toLocaleString()}
-                      </span>
-                    </div>
-
-                    <h4 className="font-bold text-white text-sm">{b.subject}</h4>
-                    <p className="text-slate-400 truncate text-[11px]">{b.messageHtml.replace(/<[^>]*>?/gm, '')}</p>
-
-                    <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400">Sent by: <strong>{b.sentBy}</strong></span>
-                      <span className="text-emerald-400 font-bold">
-                        {b.successfulDeliveries || b.totalRecipients} Delivered
-                      </span>
-                    </div>
-                  </div>
-                ))}
+            {/* Pagination Controls */}
+            {!loading && broadcasts.length > pageSize && (
+              <div className="border-t border-slate-800 pt-3">
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={broadcasts.length}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                />
               </div>
             )}
           </div>

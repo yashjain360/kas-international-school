@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
 import { useAuth } from '@/context/AuthContext';
+import { MetricCardSkeleton } from '@/components/erp/Skeleton';
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
@@ -62,7 +63,7 @@ export default function StudentDashboardPage() {
 
           <Link
             href="/erp/student/report-card"
-            className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start"
+            className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start cursor-pointer"
           >
             <Award className="w-4 h-4" />
             <span>View Digital Report Card</span>
@@ -85,7 +86,7 @@ export default function StudentDashboardPage() {
             </div>
             <Link
               href="/erp/student/fees"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 self-start sm:self-auto"
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 self-start sm:self-auto cursor-pointer"
             >
               Pay / View Invoice &rarr;
             </Link>
@@ -93,46 +94,54 @@ export default function StudentDashboardPage() {
         )}
 
         {/* 3 Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-              <span>Attendance Rate</span>
-              <CalendarCheck className="w-4 h-4 text-emerald-400" />
-            </div>
-            <p className="text-3xl font-extrabold text-white">
-              {attendanceStats?.percentage || 95}%
-            </p>
-            <p className="text-[11px] text-emerald-400 font-semibold">
-              {attendanceStats?.presentDays || 13} Days Present of {attendanceStats?.totalDays || 14} Recorded
-            </p>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <MetricCardSkeleton key={i} />
+            ))}
           </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
+              <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                <span>Attendance Rate</span>
+                <CalendarCheck className="w-4 h-4 text-emerald-400" />
+              </div>
+              <p className="text-3xl font-extrabold text-white">
+                {attendanceStats?.percentage || 95}%
+              </p>
+              <p className="text-[11px] text-emerald-400 font-semibold">
+                {attendanceStats?.presentDays || 13} Days Present of {attendanceStats?.totalDays || 14} Recorded
+              </p>
+            </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-              <span>Term Academic GPA</span>
-              <Award className="w-4 h-4 text-amber-400" />
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
+              <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                <span>Term Academic GPA</span>
+                <Award className="w-4 h-4 text-amber-400" />
+              </div>
+              <p className="text-3xl font-extrabold text-amber-400">
+                {latestReport?.overallGrade || 'A1'} ({latestReport?.percentage || 92.0}%)
+              </p>
+              <p className="text-[11px] text-slate-400">
+                Class Standing Rank: #{latestReport?.rankInClass || 2}
+              </p>
             </div>
-            <p className="text-3xl font-extrabold text-amber-400">
-              {latestReport?.overallGrade || 'A1'} ({latestReport?.percentage || 92.0}%)
-            </p>
-            <p className="text-[11px] text-slate-400">
-              Class Standing Rank: #{latestReport?.rankInClass || 2}
-            </p>
-          </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-              <span>Fee Invoices Status</span>
-              <CreditCard className="w-4 h-4 text-blue-400" />
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
+              <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
+                <span>Fee Invoices Status</span>
+                <CreditCard className="w-4 h-4 text-blue-400" />
+              </div>
+              <p className="text-3xl font-extrabold text-white">
+                {feeInvoices.filter((f) => f.status === 'paid').length} Paid
+              </p>
+              <p className="text-[11px] text-blue-400 font-semibold">
+                {feeInvoices.length} Total Statement Records
+              </p>
             </div>
-            <p className="text-3xl font-extrabold text-white">
-              {feeInvoices.filter((f) => f.status === 'paid').length} Paid
-            </p>
-            <p className="text-[11px] text-blue-400 font-semibold">
-              {feeInvoices.length} Total Statement Records
-            </p>
           </div>
-        </div>
+        )}
 
         {/* 2-Column: Quick Access & Recent Notices */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -143,7 +152,7 @@ export default function StudentDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link
                 href="/erp/student/fees"
-                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-amber-400/40 transition-all space-y-1 group"
+                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-amber-400/40 transition-all space-y-1 group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold mb-2">
                   <CreditCard className="w-4 h-4" />
@@ -154,7 +163,7 @@ export default function StudentDashboardPage() {
 
               <Link
                 href="/erp/student/attendance"
-                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-emerald-400/40 transition-all space-y-1 group"
+                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-emerald-400/40 transition-all space-y-1 group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold mb-2">
                   <CalendarCheck className="w-4 h-4" />
@@ -165,7 +174,7 @@ export default function StudentDashboardPage() {
 
               <Link
                 href="/erp/student/report-card"
-                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-blue-400/40 transition-all space-y-1 group"
+                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-blue-400/40 transition-all space-y-1 group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold mb-2">
                   <Award className="w-4 h-4" />
@@ -176,7 +185,7 @@ export default function StudentDashboardPage() {
 
               <Link
                 href="/erp/student/timetable"
-                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-purple-400/40 transition-all space-y-1 group"
+                className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 hover:border-purple-400/40 transition-all space-y-1 group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold mb-2">
                   <Clock className="w-4 h-4" />
@@ -194,25 +203,38 @@ export default function StudentDashboardPage() {
                 <Bell className="w-4 h-4 mr-2 text-amber-400" />
                 Student Circulars & Notices
               </h3>
-              <Link href="/notices" className="text-xs text-amber-400 hover:text-amber-300 font-semibold">
+              <Link href="/notices" className="text-xs text-amber-400 hover:text-amber-300 font-semibold cursor-pointer">
                 View All
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {notices.map((n) => (
-                <div key={n._id} className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1 text-xs">
-                  <div className="flex justify-between items-center text-[10px] text-slate-400">
-                    <span className="bg-blue-500/20 text-blue-300 font-bold uppercase px-2 py-0.5 rounded-md">
-                      {n.category}
-                    </span>
-                    <span>{n.publishedDate}</span>
+            {loading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="p-3 rounded-xl bg-slate-800/40 border border-slate-800 animate-pulse space-y-2">
+                    <div className="h-3 w-16 bg-slate-700 rounded-md"></div>
+                    <div className="h-3.5 w-40 bg-slate-700 rounded-md"></div>
                   </div>
-                  <h4 className="font-bold text-white text-xs">{n.title}</h4>
-                  <p className="text-slate-400 truncate">{n.content}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : notices.length === 0 ? (
+              <div className="text-slate-500 text-xs py-8 text-center">No student circulars at this time.</div>
+            ) : (
+              <div className="space-y-3">
+                {notices.map((n) => (
+                  <div key={n._id} className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1 text-xs">
+                    <div className="flex justify-between items-center text-[10px] text-slate-400">
+                      <span className="bg-blue-500/20 text-blue-300 font-bold uppercase px-2 py-0.5 rounded-md">
+                        {n.category}
+                      </span>
+                      <span>{n.publishedDate}</span>
+                    </div>
+                    <h4 className="font-bold text-white text-xs">{n.title}</h4>
+                    <p className="text-slate-400 truncate">{n.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

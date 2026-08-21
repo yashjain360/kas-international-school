@@ -15,6 +15,8 @@ import {
   X,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { TableRowSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function AdminFeesPage() {
   const [records, setRecords] = useState<any[]>([]);
@@ -25,6 +27,8 @@ export default function AdminFeesPage() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   // New Invoice Form State
   const [newInvoice, setNewInvoice] = useState({
@@ -40,6 +44,7 @@ export default function AdminFeesPage() {
   });
 
   const fetchFees = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/fees?status=${statusFilter}&search=${encodeURIComponent(searchTerm)}`);
       const data = await res.json();
@@ -55,11 +60,13 @@ export default function AdminFeesPage() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchFees();
   }, [statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1);
     fetchFees();
   };
 
@@ -123,6 +130,8 @@ export default function AdminFeesPage() {
     }
   };
 
+  const paginatedRecords = records.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <ErpLayout requiredRole="admin">
       <div className="space-y-6">
@@ -138,7 +147,7 @@ export default function AdminFeesPage() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setIsCreateOpen(true)}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2"
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Generate Fee Invoice</span>
@@ -187,7 +196,7 @@ export default function AdminFeesPage() {
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${
                   statusFilter === s
                     ? 'bg-amber-500 text-slate-950 font-bold'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -211,27 +220,33 @@ export default function AdminFeesPage() {
         </div>
 
         {/* Fee Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          {loading ? (
-            <div className="text-center py-16 text-slate-500 text-sm">Loading Fee Ledger...</div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm">No fee records found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
-                    <th className="py-3 px-4">Invoice No</th>
-                    <th className="py-3 px-4">Student & Grade</th>
-                    <th className="py-3 px-4">Term & Fee Description</th>
-                    <th className="py-3 px-4">Amount Due</th>
-                    <th className="py-3 px-4">Due Date</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
+                  <th className="py-3 px-4">Invoice No</th>
+                  <th className="py-3 px-4">Student & Grade</th>
+                  <th className="py-3 px-4">Term & Fee Description</th>
+                  <th className="py-3 px-4">Amount Due</th>
+                  <th className="py-3 px-4">Due Date</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              {loading ? (
+                <TableRowSkeleton cols={7} rows={5} />
+              ) : records.length === 0 ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={7} className="text-center py-16 text-slate-500 text-sm">
+                      No fee records found.
+                    </td>
                   </tr>
-                </thead>
+                </tbody>
+              ) : (
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {records.map((r) => (
+                  {paginatedRecords.map((r) => (
                     <tr key={r._id} className="hover:bg-slate-800/60 transition-colors">
                       <td className="py-3 px-4 font-mono font-bold text-amber-400">{r.invoiceNo}</td>
                       <td className="py-3 px-4">
@@ -269,13 +284,13 @@ export default function AdminFeesPage() {
                             <button
                               onClick={() => handleSendReminder(r._id)}
                               disabled={sendingId === r._id}
-                              className="bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-[11px] font-bold px-2.5 py-1 rounded-md border border-slate-700 transition-all disabled:opacity-50"
+                              className="bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-[11px] font-bold px-2.5 py-1 rounded-md border border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
                             >
                               {sendingId === r._id ? 'Sending...' : 'Email Reminder'}
                             </button>
                             <button
                               onClick={() => handleMarkPaid(r._id)}
-                              className="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-all"
+                              className="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-all cursor-pointer"
                             >
                               Mark Paid
                             </button>
@@ -288,8 +303,18 @@ export default function AdminFeesPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              )}
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {!loading && records.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={records.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           )}
         </div>
 
@@ -299,7 +324,7 @@ export default function AdminFeesPage() {
             <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <h3 className="font-bold text-base text-white">Generate Term Fee Statement</h3>
-                <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -322,7 +347,7 @@ export default function AdminFeesPage() {
                     <select
                       value={newInvoice.term}
                       onChange={(e) => setNewInvoice({ ...newInvoice, term: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white cursor-pointer"
                     >
                       <option value="Quarter 1">Quarter 1</option>
                       <option value="Quarter 2">Quarter 2</option>
@@ -398,13 +423,13 @@ export default function AdminFeesPage() {
                   <button
                     type="button"
                     onClick={() => setIsCreateOpen(false)}
-                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold"
+                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold shadow-md"
+                    className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold shadow-md cursor-pointer"
                   >
                     Generate Invoice
                   </button>

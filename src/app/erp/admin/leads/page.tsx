@@ -15,6 +15,8 @@ import {
   Plus,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { TableRowSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<any[]>([]);
@@ -24,8 +26,11 @@ export default function AdminLeadsPage() {
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
   const [newNote, setNewNote] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const fetchLeads = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/leads?status=${statusFilter}&search=${encodeURIComponent(searchTerm)}`);
       const data = await res.json();
@@ -44,11 +49,13 @@ export default function AdminLeadsPage() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchLeads();
   }, [statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1);
     fetchLeads();
   };
 
@@ -97,6 +104,9 @@ export default function AdminLeadsPage() {
     { id: 'enrolled', label: 'Enrolled' },
   ];
 
+  // Pagination slicing
+  const paginatedLeads = leads.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <ErpLayout requiredRole="admin">
       <div className="space-y-6">
@@ -120,7 +130,7 @@ export default function AdminLeadsPage() {
               <button
                 key={s.id}
                 onClick={() => setStatusFilter(s.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   statusFilter === s.id
                     ? 'bg-amber-500 text-slate-950 font-bold'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -146,25 +156,32 @@ export default function AdminLeadsPage() {
         {/* 2-Column: Leads Table & Detail Drawer */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Table */}
-          <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-            {loading ? (
-              <div className="text-center py-16 text-slate-500 text-sm">Loading Leads...</div>
-            ) : leads.length === 0 ? (
-              <div className="text-center py-16 text-slate-500 text-sm">No admission leads found.</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
-                  <thead>
-                    <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
-                      <th className="py-3 px-4">Ref No & Date</th>
-                      <th className="py-3 px-4">Student & Grade</th>
-                      <th className="py-3 px-4">Parent Details</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Action</th>
+          <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead>
+                  <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
+                    <th className="py-3 px-4">Ref No & Date</th>
+                    <th className="py-3 px-4">Student & Grade</th>
+                    <th className="py-3 px-4">Parent Details</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+
+                {loading ? (
+                  <TableRowSkeleton cols={5} rows={5} />
+                ) : leads.length === 0 ? (
+                  <tbody>
+                    <tr>
+                      <td colSpan={5} className="text-center py-16 text-slate-500 text-sm">
+                        No admission leads found.
+                      </td>
                     </tr>
-                  </thead>
+                  </tbody>
+                ) : (
                   <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {leads.map((lead) => (
+                    {paginatedLeads.map((lead) => (
                       <tr
                         key={lead._id}
                         onClick={() => setSelectedLead(lead)}
@@ -199,8 +216,18 @@ export default function AdminLeadsPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                )}
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {!loading && leads.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalItems={leads.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+              />
             )}
           </div>
 
@@ -217,7 +244,7 @@ export default function AdminLeadsPage() {
                     value={selectedLead.status}
                     onChange={(e) => handleUpdateStatus(selectedLead._id, e.target.value)}
                     disabled={updating}
-                    className="text-xs bg-slate-800 border border-slate-700 text-white rounded-lg px-2.5 py-1.5 font-bold"
+                    className="text-xs bg-slate-800 border border-slate-700 text-white rounded-lg px-2.5 py-1.5 font-bold cursor-pointer"
                   >
                     <option value="new">New</option>
                     <option value="contacted">Contacted</option>
@@ -287,7 +314,7 @@ export default function AdminLeadsPage() {
                     <button
                       onClick={handleAddNote}
                       disabled={updating || !newNote.trim()}
-                      className="bg-amber-500 text-slate-950 px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-50"
+                      className="bg-amber-500 text-slate-950 px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-50 cursor-pointer"
                     >
                       Add Note
                     </button>

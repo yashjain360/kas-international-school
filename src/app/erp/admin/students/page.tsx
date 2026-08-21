@@ -14,6 +14,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { TableRowSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
@@ -22,6 +24,8 @@ export default function AdminStudentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isEnrollOpen, setIsEnrollOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   // New Student State
   const [newStudent, setNewStudent] = useState({
@@ -39,6 +43,7 @@ export default function AdminStudentsPage() {
   });
 
   const fetchStudents = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/students?grade=${gradeFilter}&search=${encodeURIComponent(searchTerm)}`);
       const data = await res.json();
@@ -51,11 +56,13 @@ export default function AdminStudentsPage() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchStudents();
   }, [gradeFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1);
     fetchStudents();
   };
 
@@ -95,6 +102,7 @@ export default function AdminStudentsPage() {
   };
 
   const grades = ['all', 'Grade 10', 'Grade 9', 'Grade 8', 'Grade 6', 'Grade 4'];
+  const paginatedStudents = students.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <ErpLayout requiredRole="admin">
@@ -110,7 +118,7 @@ export default function AdminStudentsPage() {
 
           <button
             onClick={() => setIsEnrollOpen(true)}
-            className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start"
+            className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Enroll New Student</span>
@@ -136,7 +144,7 @@ export default function AdminStudentsPage() {
               <button
                 key={g}
                 onClick={() => setGradeFilter(g)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   gradeFilter === g
                     ? 'bg-amber-500 text-slate-950 font-bold'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -160,26 +168,32 @@ export default function AdminStudentsPage() {
         </div>
 
         {/* Students Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          {loading ? (
-            <div className="text-center py-16 text-slate-500 text-sm">Loading Student Roster...</div>
-          ) : students.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm">No students found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
-                    <th className="py-3 px-4">Student & Admission No</th>
-                    <th className="py-3 px-4">Grade & Section</th>
-                    <th className="py-3 px-4">Parent / Guardian</th>
-                    <th className="py-3 px-4">Contact Phone & Bus</th>
-                    <th className="py-3 px-4">Blood & Gender</th>
-                    <th className="py-3 px-4">Status</th>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
+                  <th className="py-3 px-4">Student & Admission No</th>
+                  <th className="py-3 px-4">Grade & Section</th>
+                  <th className="py-3 px-4">Parent / Guardian</th>
+                  <th className="py-3 px-4">Contact Phone & Bus</th>
+                  <th className="py-3 px-4">Blood & Gender</th>
+                  <th className="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              {loading ? (
+                <TableRowSkeleton cols={6} rows={5} />
+              ) : students.length === 0 ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={6} className="text-center py-16 text-slate-500 text-sm">
+                      No students found.
+                    </td>
                   </tr>
-                </thead>
+                </tbody>
+              ) : (
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {students.map((st) => (
+                  {paginatedStudents.map((st) => (
                     <tr key={st.id} className="hover:bg-slate-800/60 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-3">
@@ -216,8 +230,18 @@ export default function AdminStudentsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              )}
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {!loading && students.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={students.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           )}
         </div>
 
@@ -227,7 +251,7 @@ export default function AdminStudentsPage() {
             <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <h3 className="font-bold text-base text-white">Enroll New Student</h3>
-                <button onClick={() => setIsEnrollOpen(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setIsEnrollOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -262,7 +286,7 @@ export default function AdminStudentsPage() {
                     <select
                       value={newStudent.grade}
                       onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white cursor-pointer"
                     >
                       <option value="Grade 10">Grade 10</option>
                       <option value="Grade 9">Grade 9</option>
@@ -276,7 +300,7 @@ export default function AdminStudentsPage() {
                     <select
                       value={newStudent.section}
                       onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white cursor-pointer"
                     >
                       <option value="A">Section A</option>
                       <option value="B">Section B</option>
@@ -312,13 +336,13 @@ export default function AdminStudentsPage() {
                   <button
                     type="button"
                     onClick={() => setIsEnrollOpen(false)}
-                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold"
+                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold shadow-md"
+                    className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold shadow-md cursor-pointer"
                   >
                     Complete Enrollment
                   </button>

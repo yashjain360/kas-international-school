@@ -12,12 +12,16 @@ import {
   X,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { CardSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function AdminNoticesPage() {
   const [notices, setNotices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPublishOpen, setIsPublishOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const [newNotice, setNewNotice] = useState({
     title: '',
@@ -29,6 +33,7 @@ export default function AdminNoticesPage() {
   });
 
   const fetchNotices = async () => {
+    setLoading(true);
     try {
       const res = await fetch('/api/notices');
       const data = await res.json();
@@ -87,6 +92,8 @@ export default function AdminNoticesPage() {
     }
   };
 
+  const paginatedNotices = notices.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <ErpLayout requiredRole="admin">
       <div className="space-y-6">
@@ -101,7 +108,7 @@ export default function AdminNoticesPage() {
 
           <button
             onClick={() => setIsPublishOpen(true)}
-            className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start"
+            className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Publish New Notice</span>
@@ -120,51 +127,68 @@ export default function AdminNoticesPage() {
           </div>
         )}
 
-        {/* Notices Grid */}
+        {/* Notices List */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-16 text-slate-500 text-sm">Loading Notices...</div>
+            <CardSkeleton count={3} />
           ) : notices.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm">No circulars published.</div>
+            <div className="bg-slate-900 border border-slate-800 p-12 rounded-2xl text-center text-slate-500 text-sm">
+              No circulars published.
+            </div>
           ) : (
-            notices.map((n) => (
-              <div
-                key={n._id}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3 relative shadow-xs"
-              >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center space-x-2">
-                    {n.isPinned && (
-                      <span className="bg-amber-400/20 text-amber-300 text-[10px] font-bold uppercase px-2 py-0.5 rounded-md flex items-center">
-                        <Pin className="w-3 h-3 mr-1" />
-                        Pinned
+            <>
+              {paginatedNotices.map((n) => (
+                <div
+                  key={n._id}
+                  className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3 relative shadow-xs"
+                >
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div className="flex items-center space-x-2">
+                      {n.isPinned && (
+                        <span className="bg-amber-400/20 text-amber-300 text-[10px] font-bold uppercase px-2 py-0.5 rounded-md flex items-center">
+                          <Pin className="w-3 h-3 mr-1" />
+                          Pinned
+                        </span>
+                      )}
+                      <span className="bg-blue-500/20 text-blue-300 text-[10px] font-bold uppercase px-2 py-0.5 rounded-md">
+                        {n.category}
                       </span>
-                    )}
-                    <span className="bg-blue-500/20 text-blue-300 text-[10px] font-bold uppercase px-2 py-0.5 rounded-md">
-                      {n.category}
-                    </span>
-                    <span className="text-[11px] text-slate-400">Target: {n.targetAudience}</span>
+                      <span className="text-[11px] text-slate-400">Target: {n.targetAudience}</span>
+                    </div>
+
+                    <div className="flex items-center space-x-3 text-xs text-slate-400">
+                      <span>Published: {n.publishedDate}</span>
+                      <button
+                        onClick={() => handleDelete(n._id)}
+                        className="text-red-400 hover:text-red-300 p-1 cursor-pointer"
+                        title="Retract Notice"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 text-xs text-slate-400">
-                    <span>Published: {n.publishedDate}</span>
-                    <button
-                      onClick={() => handleDelete(n._id)}
-                      className="text-red-400 hover:text-red-300 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <h3 className="text-base font-bold text-white">{n.title}</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">{n.content}</p>
+
+                  <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+                    Author: <strong className="text-slate-300">{n.authorName}</strong>
                   </div>
                 </div>
+              ))}
 
-                <h3 className="text-base font-bold text-white">{n.title}</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">{n.content}</p>
-
-                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400">
-                  Author: <strong className="text-slate-300">{n.authorName}</strong>
+              {/* Pagination Controls */}
+              {notices.length > pageSize && (
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={notices.length}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                  />
                 </div>
-              </div>
-            ))
+              )}
+            </>
           )}
         </div>
 
@@ -174,7 +198,7 @@ export default function AdminNoticesPage() {
             <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <h3 className="font-bold text-base text-white">Publish Official Notice</h3>
-                <button onClick={() => setIsPublishOpen(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setIsPublishOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -198,7 +222,7 @@ export default function AdminNoticesPage() {
                     <select
                       value={newNotice.category}
                       onChange={(e) => setNewNotice({ ...newNotice, category: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white cursor-pointer"
                     >
                       <option value="academic">Academic</option>
                       <option value="exam">Examination & Assessments</option>
@@ -212,7 +236,7 @@ export default function AdminNoticesPage() {
                     <select
                       value={newNotice.targetAudience}
                       onChange={(e) => setNewNotice({ ...newNotice, targetAudience: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white cursor-pointer"
                     >
                       <option value="all">All Stakeholders</option>
                       <option value="students">Students & Parents</option>
@@ -250,13 +274,13 @@ export default function AdminNoticesPage() {
                   <button
                     type="button"
                     onClick={() => setIsPublishOpen(false)}
-                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold"
+                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold shadow-md"
+                    className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold shadow-md cursor-pointer"
                   >
                     Publish Notice
                   </button>

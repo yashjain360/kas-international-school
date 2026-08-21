@@ -10,11 +10,15 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { TableRowSkeleton } from '@/components/erp/Skeleton';
+import { Pagination } from '@/components/erp/Pagination';
 
 export default function StudentAttendancePage() {
   const [records, setRecords] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     fetch('/api/attendance')
@@ -26,6 +30,8 @@ export default function StudentAttendancePage() {
       .catch((err) => console.error('Student attendance error:', err))
       .finally(() => setLoading(false));
   }, []);
+
+  const paginatedRecords = records.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <ErpLayout requiredRole="student">
@@ -63,25 +69,31 @@ export default function StudentAttendancePage() {
         )}
 
         {/* Day-by-Day Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          {loading ? (
-            <div className="text-center py-16 text-slate-500 text-sm">Loading Attendance Records...</div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-16 text-slate-500 text-sm">No attendance records found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
-                    <th className="py-3 px-4">Date</th>
-                    <th className="py-3 px-4">Class</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Marked By</th>
-                    <th className="py-3 px-4">Teacher Remark</th>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-800/60 text-slate-400 font-bold uppercase">
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4">Class</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Marked By</th>
+                  <th className="py-3 px-4">Teacher Remark</th>
+                </tr>
+              </thead>
+              {loading ? (
+                <TableRowSkeleton cols={5} rows={5} />
+              ) : records.length === 0 ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={5} className="text-center py-16 text-slate-500 text-sm">
+                      No attendance records found.
+                    </td>
                   </tr>
-                </thead>
+                </tbody>
+              ) : (
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {records.map((r) => (
+                  {paginatedRecords.map((r) => (
                     <tr key={r._id} className="hover:bg-slate-800/60 transition-colors">
                       <td className="py-3 px-4 font-mono font-bold text-white flex items-center">
                         <Calendar className="w-3.5 h-3.5 mr-2 text-slate-400" />
@@ -110,8 +122,18 @@ export default function StudentAttendancePage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              )}
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {!loading && records.length > pageSize && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={records.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           )}
         </div>
       </div>

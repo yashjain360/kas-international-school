@@ -4,73 +4,60 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users,
+  GraduationCap,
   CreditCard,
   UserPlus,
   CalendarCheck,
-  Award,
-  Send,
   Bell,
-  ArrowRight,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Sparkles,
+  Mail,
+  AlertTriangle,
+  ArrowUpRight,
+  Send,
+  RefreshCw,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
+import { MetricCardSkeleton } from '@/components/erp/Skeleton';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<any>(null);
-  const [recentLeads, setRecentLeads] = useState<any[]>([]);
-  const [overdueInvoices, setOverdueInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [reminding, setReminding] = useState(false);
-  const [reminderStatus, setReminderStatus] = useState<string | null>(null);
+  const [reminderMessage, setReminderMessage] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchStats = async () => {
+    setLoading(true);
     try {
-      const [statsRes, leadsRes, feesRes] = await Promise.all([
-        fetch('/api/stats'),
-        fetch('/api/leads?status=all'),
-        fetch('/api/fees?status=overdue'),
-      ]);
-
-      const statsData = await statsRes.json();
-      const leadsData = await leadsRes.json();
-      const feesData = await feesRes.json();
-
-      if (statsData.success) setStats(statsData.stats);
-      if (leadsData.success) setRecentLeads(leadsData.leads.slice(0, 5));
-      if (feesData.success) setOverdueInvoices(feesData.records.slice(0, 5));
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      if (data.stats) setStats(data.stats);
     } catch (err) {
-      console.error('Admin dashboard error:', err);
+      console.error('Stats error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchStats();
   }, []);
 
-  const handleBulkReminder = async () => {
+  const handleTriggerFeeReminders = async () => {
     setReminding(true);
-    setReminderStatus(null);
+    setReminderMessage(null);
     try {
       const res = await fetch('/api/fees/remind', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bulkOverdue: true }),
+        body: JSON.stringify({ mode: 'all_overdue' }),
       });
       const data = await res.json();
       if (res.ok) {
-        setReminderStatus(data.message);
-        fetchData();
+        setReminderMessage(data.message || 'Fee reminder emails successfully dispatched.');
       } else {
-        setReminderStatus(data.error || 'Failed to dispatch reminders.');
+        setReminderMessage(data.error || 'Failed to dispatch reminders.');
       }
     } catch {
-      setReminderStatus('Network error while dispatching reminders.');
+      setReminderMessage('Network error triggering reminders.');
     } finally {
       setReminding(false);
     }
@@ -82,170 +69,147 @@ export default function AdminDashboardPage() {
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-400/10 border border-amber-400/30 px-2.5 py-1 rounded-md">
-              Executive Management Overview
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mt-1.5">
-              School Administrative Dashboard
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Executive Control & KPIs</h1>
             <p className="text-xs sm:text-sm text-slate-400">
-              Live metrics across enrollments, fee collections, attendance, and admissions CRM.
+              Real-time scholastic enrollments, daily attendance averages, CRM admissions, and fee ledger analytics.
             </p>
           </div>
 
           <div className="flex items-center space-x-3">
             <button
-              onClick={handleBulkReminder}
+              onClick={fetchStats}
+              disabled={loading}
+              className="p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-all"
+              title="Refresh Analytics"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={handleTriggerFeeReminders}
               disabled={reminding}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 disabled:opacity-50"
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 disabled:opacity-50"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>{reminding ? 'Dispatching...' : 'Dispatch All Fee Reminders (SMTP)'}</span>
+              <span>{reminding ? 'Dispatching SMTP...' : 'Trigger Bulk Fee Reminders'}</span>
             </button>
           </div>
         </div>
 
-        {reminderStatus && (
-          <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>{reminderStatus}</span>
-            </div>
-            <button onClick={() => setReminderStatus(null)} className="text-emerald-400 hover:text-white text-xs">
+        {reminderMessage && (
+          <div className="p-4 rounded-xl bg-emerald-950 border border-emerald-500/50 text-emerald-200 text-xs flex items-center justify-between">
+            <span>{reminderMessage}</span>
+            <button onClick={() => setReminderMessage(null)} className="text-emerald-400 hover:text-white font-bold ml-4">
               Dismiss
             </button>
           </div>
         )}
 
-        {/* 6 Metric KPI Cards */}
+        {/* 6 Key Performance Metric Cards */}
         {loading ? (
-          <div className="text-center py-12 text-slate-500 text-sm">Loading Executive Metrics...</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <MetricCardSkeleton key={i} />
+            ))}
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-                <span>Active Students Enrolled</span>
+                <span>Active Scholars</span>
                 <Users className="w-4 h-4 text-blue-400" />
               </div>
               <p className="text-3xl font-extrabold text-white">{stats?.totalStudents || 5}</p>
-              <p className="text-[11px] text-emerald-400 font-semibold">100% Verified Profiles in Database</p>
+              <p className="text-[11px] text-blue-400 font-semibold">Pre-K through Class X Enrolled</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
                 <span>Faculty & Mentors</span>
-                <Award className="w-4 h-4 text-purple-400" />
+                <GraduationCap className="w-4 h-4 text-amber-400" />
               </div>
               <p className="text-3xl font-extrabold text-white">{stats?.totalFaculty || 5}</p>
-              <p className="text-[11px] text-purple-400 font-semibold">CBSE Subject Specialists on Duty</p>
+              <p className="text-[11px] text-amber-400 font-semibold">1:18 Teacher-Scholar Ratio</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-                <span>Active Admission Leads</span>
-                <UserPlus className="w-4 h-4 text-amber-400" />
+                <span>Active CRM Leads</span>
+                <UserPlus className="w-4 h-4 text-purple-400" />
               </div>
-              <p className="text-3xl font-extrabold text-amber-400">{stats?.activeLeads || 4}</p>
-              <p className="text-[11px] text-slate-400">Inquiries in Verification & Walkthrough Stage</p>
+              <p className="text-3xl font-extrabold text-white">{stats?.activeLeads || 4}</p>
+              <p className="text-[11px] text-purple-400 font-semibold">Inquiries In Pipeline</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-                <span>Total Fee Collected</span>
+                <span>Fee Collections</span>
                 <CreditCard className="w-4 h-4 text-emerald-400" />
               </div>
               <p className="text-3xl font-extrabold text-emerald-400">
-                ₹{new Intl.NumberFormat('en-IN').format(stats?.totalCollected || 240000)}
+                ₹{new Intl.NumberFormat('en-IN').format(stats?.totalCollected || 250000)}
               </p>
-              <p className="text-[11px] text-emerald-400 font-semibold">Reconciled in Institutional Accounts</p>
+              <p className="text-[11px] text-emerald-500 font-semibold">Settled Term Invoices</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-                <span>Overdue / Pending Balance</span>
-                <AlertCircle className="w-4 h-4 text-red-400" />
+                <span>Overdue Balance</span>
+                <AlertTriangle className="w-4 h-4 text-red-400" />
               </div>
               <p className="text-3xl font-extrabold text-red-400">
-                ₹{new Intl.NumberFormat('en-IN').format(stats?.totalOverdue || 210000)}
+                ₹{new Intl.NumberFormat('en-IN').format(stats?.totalOverdue || 61000)}
               </p>
-              <p className="text-[11px] text-red-400 font-semibold">Ready for Automated Email Reminder</p>
+              <p className="text-[11px] text-red-400 font-semibold">Pending Automated Notice</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase">
-                <span>Today's Attendance Rate</span>
-                <CalendarCheck className="w-4 h-4 text-blue-400" />
+                <span>Average Attendance</span>
+                <CalendarCheck className="w-4 h-4 text-teal-400" />
               </div>
               <p className="text-3xl font-extrabold text-white">{stats?.attendanceRate || 96}%</p>
-              <p className="text-[11px] text-blue-400 font-semibold">Exemplary Student Discipline</p>
+              <p className="text-[11px] text-teal-400 font-semibold">Consistent Daily Presence</p>
             </div>
           </div>
         )}
 
-        {/* 2-Column: Recent Admission Inquiries & Overdue Fee Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Leads */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center space-x-2">
-                <UserPlus className="w-4 h-4 text-amber-400" />
-                <h3 className="font-bold text-sm text-white">Recent Admission Leads</h3>
-              </div>
-              <Link href="/erp/admin/leads" className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center">
-                <span>Manage CRM</span>
-                <ArrowRight className="w-3 h-3 ml-1" />
-              </Link>
+        {/* Quick ERP Shortcuts */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            href="/erp/admin/leads"
+            className="p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-400/40 transition-all space-y-2 group"
+          >
+            <div className="flex items-center justify-between text-amber-400">
+              <UserPlus className="w-6 h-6" />
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </div>
+            <h3 className="font-bold text-base text-white">Admissions CRM Pipeline</h3>
+            <p className="text-xs text-slate-400">Review prospective parent inquiries, schedule tours, and track enrollment notes.</p>
+          </Link>
 
-            <div className="space-y-3">
-              {recentLeads.map((lead) => (
-                <div
-                  key={lead._id}
-                  className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs"
-                >
-                  <div className="space-y-0.5">
-                    <p className="font-bold text-white">{lead.studentName} <span className="text-slate-400 font-normal">({lead.targetGrade})</span></p>
-                    <p className="text-slate-400">Parent: {lead.parentName} • {lead.phone}</p>
-                  </div>
-                  <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] font-bold uppercase px-2 py-0.5 rounded-md">
-                    {lead.status.replace('_', ' ')}
-                  </span>
-                </div>
-              ))}
+          <Link
+            href="/erp/admin/fees"
+            className="p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-400/40 transition-all space-y-2 group"
+          >
+            <div className="flex items-center justify-between text-blue-400">
+              <CreditCard className="w-6 h-6" />
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </div>
-          </div>
+            <h3 className="font-bold text-base text-white">Fee Ledger & Automated Reminders</h3>
+            <p className="text-xs text-slate-400">Create new installment invoices, verify UPI/cash payments, and trigger 1-click email reminders.</p>
+          </Link>
 
-          {/* Overdue Fee Invoices */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center space-x-2">
-                <CreditCard className="w-4 h-4 text-red-400" />
-                <h3 className="font-bold text-sm text-white">Overdue Fee Statements</h3>
-              </div>
-              <Link href="/erp/admin/fees" className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center">
-                <span>Full Ledger</span>
-                <ArrowRight className="w-3 h-3 ml-1" />
-              </Link>
+          <Link
+            href="/erp/admin/broadcasts"
+            className="p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-purple-400/40 transition-all space-y-2 group"
+          >
+            <div className="flex items-center justify-between text-purple-400">
+              <Mail className="w-6 h-6" />
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </div>
-
-            <div className="space-y-3">
-              {overdueInvoices.map((inv) => (
-                <div
-                  key={inv._id}
-                  className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs"
-                >
-                  <div className="space-y-0.5">
-                    <p className="font-bold text-white">{inv.studentName} <span className="text-slate-400 font-normal">({inv.admissionNo})</span></p>
-                    <p className="text-red-400 font-semibold">{inv.term} • Due: {inv.dueDate}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-extrabold text-white text-sm">₹{new Intl.NumberFormat('en-IN').format(inv.totalAmount)}</p>
-                    <span className="text-[10px] text-amber-400">Reminders Sent: {inv.remindersSentCount || 0}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            <h3 className="font-bold text-base text-white">Multi-Channel Email Broadcast</h3>
+            <p className="text-xs text-slate-400">Send immediate circular announcements to all students, faculty, or leads via official SMTP.</p>
+          </Link>
         </div>
       </div>
     </ErpLayout>
