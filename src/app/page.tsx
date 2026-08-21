@@ -129,43 +129,43 @@ export default function HomePage() {
               Welcome to <strong>K.A.S. International School, Bhopal</strong> (Khajuri Kalan Road, Regal Town, BHEL). We provide an inspiring learning ecosystem where academic rigor meets modern STEM innovation, creative arts, and global moral leadership.
             </p>
 
-            <div className="flex flex-wrap gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Link
                 href="/admissions"
-                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center space-x-2 text-sm"
+                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center space-x-2 text-sm"
               >
                 <span>Apply for Admission</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/auth/login"
-                className="bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-6 py-3.5 rounded-xl backdrop-blur-xs transition-all flex items-center space-x-2 text-sm"
+                className="bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-6 py-3.5 rounded-xl backdrop-blur-xs transition-all flex items-center justify-center space-x-2 text-sm"
               >
                 <span>Student & Staff ERP</span>
                 <ChevronRight className="w-4 h-4 text-amber-400" />
               </Link>
               <Link
                 href="/gallery"
-                className="bg-transparent hover:bg-white/5 text-amber-300 hover:text-white font-semibold px-4 py-3.5 rounded-xl transition-all flex items-center space-x-1 text-sm border border-amber-400/30"
+                className="bg-transparent hover:bg-white/5 text-amber-300 hover:text-white font-semibold px-4 py-3.5 rounded-xl transition-all flex items-center justify-center space-x-1 text-sm border border-amber-400/30"
               >
                 <Camera className="w-4 h-4 mr-1 text-amber-400" />
-                <span>Explore Campus Media</span>
+                <span>Explore Media</span>
               </Link>
             </div>
 
             {/* Micro Highlights */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-700/60 max-w-lg" data-aos="fade-up" data-aos-delay="200">
-              <div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">100%</p>
-                <p className="text-xs text-slate-400 font-medium">CBSE Curriculum Standards</p>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-slate-700/60 max-w-lg" data-aos="fade-up" data-aos-delay="200">
+              <div className="bg-white/5 sm:bg-transparent p-2 sm:p-0 rounded-lg text-center sm:text-left">
+                <p className="text-xl sm:text-3xl font-extrabold text-amber-400">100%</p>
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium">CBSE Standard</p>
               </div>
-              <div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-white">1:18</p>
-                <p className="text-xs text-slate-400 font-medium">Faculty to Student Ratio</p>
+              <div className="bg-white/5 sm:bg-transparent p-2 sm:p-0 rounded-lg text-center sm:text-left">
+                <p className="text-xl sm:text-3xl font-extrabold text-white">1:18</p>
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium">Teacher Ratio</p>
               </div>
-              <div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">30+</p>
-                <p className="text-xs text-slate-400 font-medium">Smart Labs & Studios</p>
+              <div className="bg-white/5 sm:bg-transparent p-2 sm:p-0 rounded-lg text-center sm:text-left">
+                <p className="text-xl sm:text-3xl font-extrabold text-amber-400">30+</p>
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium">Smart Labs</p>
               </div>
             </div>
           </div>
