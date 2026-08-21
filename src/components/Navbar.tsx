@@ -27,10 +27,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  const isErpPage = pathname?.startsWith('/erp');
-  if (isErpPage) return null; // ERP uses its dedicated executive sidebar
-
-  // Lock body scroll when mobile drawer is open
+  // Lock body scroll when mobile drawer is open (Hooks must run unconditionally on every render)
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -41,6 +38,9 @@ export function Navbar() {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  const isErpPage = pathname?.startsWith('/erp');
+  if (isErpPage) return null; // ERP uses its dedicated executive sidebar
 
   const navLinks = [
     { name: 'Home', href: '/', icon: GraduationCap },
