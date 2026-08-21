@@ -12,10 +12,12 @@ import {
   Trash2,
   CheckCircle2,
   X,
+  Layers,
+  Sparkles,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
 
-export default function FacultyTimetablePage() {
+export default function AdminTimetablePage() {
   const [selectedGrade, setSelectedGrade] = useState('Grade 10');
   const [selectedSection, setSelectedSection] = useState('A');
   const [timetables, setTimetables] = useState<any[]>([]);
@@ -67,8 +69,8 @@ export default function FacultyTimetablePage() {
       {
         periodNo: nextNo,
         timeSlot: '01:30 - 02:15 PM',
-        subject: 'General Studies',
-        teacherName: 'Faculty In-Charge',
+        subject: 'Computer Science & AI',
+        teacherName: 'Prof. Sandeep Verma',
         roomNo: 'Room 101',
       },
     ]);
@@ -76,7 +78,6 @@ export default function FacultyTimetablePage() {
 
   const handleRemovePeriod = (idx: number) => {
     const updated = editPeriods.filter((_, i) => i !== idx);
-    // re-index periodNo
     const reindexed = updated.map((p, i) => ({ ...p, periodNo: i + 1 }));
     setEditPeriods(reindexed);
   };
@@ -115,14 +116,19 @@ export default function FacultyTimetablePage() {
   };
 
   return (
-    <ErpLayout requiredRole="faculty">
+    <ErpLayout requiredRole="admin">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Academic Master Timetable & Routine</h1>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-md">
+                Institutional Schedule Master
+              </span>
+            </div>
+            <h1 className="text-2xl font-bold text-white mt-1">Class Timetable & Period Allocation</h1>
             <p className="text-xs text-slate-400">
-              Weekly class routine, lecture timings, laboratory practical slots, and room locations with inline faculty editing.
+              Configure daily lecture periods, subject curriculum allocations, faculty assignments, and laboratory facilities.
             </p>
           </div>
 
@@ -186,7 +192,7 @@ export default function FacultyTimetablePage() {
                     </h3>
                     <div className="flex items-center space-x-3">
                       <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
-                        {periods.length} Periods Scheduled
+                        {periods.length} Periods Configured
                       </span>
                       <button
                         onClick={() => handleOpenEdit(day)}
@@ -227,10 +233,10 @@ export default function FacultyTimetablePage() {
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div>
                   <h3 className="font-bold text-base text-white">
-                    Edit {editingDay} Timetable ({selectedGrade}-{selectedSection})
+                    Admin Routine Editor: {editingDay} ({selectedGrade}-{selectedSection})
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Modify lecture timings, subject designations, assigned faculty, and room locations.
+                    Modify lecture periods, subject domains, designated faculty in-charge, and room locations.
                   </p>
                 </div>
                 <button onClick={() => setEditingDay(null)} className="text-slate-400 hover:text-white cursor-pointer">

@@ -3,7 +3,7 @@ dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 import { connectToDatabase } from '../src/server/db';
-import { UserModel, FeeRecordModel, LeadEnquiryModel, GradeRecordModel, AssessmentTermModel } from '../src/server/models';
+import { UserModel, FeeRecordModel, LeadEnquiryModel, GradeRecordModel, AssessmentTermModel, TimetableModel } from '../src/server/models';
 import { comparePassword, signToken, verifyToken } from '../src/server/auth';
 import { getTransporter } from '../src/server/mailer';
 
@@ -143,8 +143,25 @@ async function runTests() {
     assert(!!sampleReport && sampleReport.termCode === 'SA1', 'Session 2026-2027 SA1 report card verified');
     assert(sampleReport.percentage > 90, 'Report card computed correct percentage and A1 grade');
 
-    // 8. Nodemailer SMTP Configuration Test
-    console.log('\n--- 8. Nodemailer SMTP Setup & Transport ---');
+    // 8. Timetable Management (Faculty / Admin Edit)
+    console.log('\n--- 8. Timetable CRUD & Routine Management ---');
+    const sampleTimetable = await TimetableModel.findOneAndUpdate(
+      { grade: 'Grade 10', section: 'A', day: 'Monday' },
+      {
+        grade: 'Grade 10',
+        section: 'A',
+        day: 'Monday',
+        periods: [
+          { periodNo: 1, timeSlot: '08:30 - 09:20 AM', subject: 'Advanced Mathematics', teacherName: 'Prof. Rajesh Sharma', roomNo: 'Room 101' },
+          { periodNo: 2, timeSlot: '09:20 - 10:10 AM', subject: 'Physics & STEM Lab', teacherName: 'Dr. Vikram Malhotra', roomNo: 'Physics Lab A' },
+        ],
+      },
+      { upsert: true, new: true }
+    );
+    assert(!!sampleTimetable && sampleTimetable.periods.length === 2, 'Timetable period edited and persisted for Grade 10-A Monday');
+
+    // 9. Nodemailer SMTP Configuration Test
+    console.log('\n--- 9. Nodemailer SMTP Setup & Transport ---');
     const transporter = getTransporter();
     assert(!!transporter, 'Nodemailer SMTP transport initialized with info@thewebvale.com credentials');
 
