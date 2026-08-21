@@ -174,7 +174,21 @@ export function Footer() {
       {/* Bottom Copyright Bar */}
       <div className="bg-[#061422] py-6 pb-24 lg:pb-6 px-4 sm:px-8 border-t border-slate-800 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 K.A.S. International School, Bhopal. All Rights Reserved.</p>
+          <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2">
+            <p>© 2026 K.A.S. International School, Bhopal. All Rights Reserved.</p>
+            <span className="hidden sm:inline text-slate-600">•</span>
+            <p className="text-amber-400/90 font-medium">
+              Made with <span className="text-red-500">❤️</span> by{' '}
+              <a
+                href="https://thewebvale.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline font-bold text-amber-400"
+              >
+                TheWebVale
+              </a>
+            </p>
+          </div>
           <div className="flex items-center space-x-6">
             <Link href="/contact" className="hover:text-slate-200">Parent Grievance Cell</Link>
             <Link href="/contact" className="hover:text-slate-200">Anti-Ragging Policy</Link>
