@@ -160,8 +160,32 @@ async function runTests() {
     );
     assert(!!sampleTimetable && sampleTimetable.periods.length === 2, 'Timetable period edited and persisted for Grade 10-A Monday');
 
-    // 9. Nodemailer SMTP Configuration Test
-    console.log('\n--- 9. Nodemailer SMTP Setup & Transport ---');
+    // 9. Faculty CRUD Operations Test
+    console.log('\n--- 9. Faculty CRUD Operations Test ---');
+    const testFacEmail = 'faculty.test.temp@kasinternationalschool.org';
+    await UserModel.findOneAndDelete({ email: testFacEmail });
+    const createdFac = await UserModel.create({
+      name: 'Dr. Test Mentor',
+      email: testFacEmail,
+      role: 'faculty',
+      designation: 'Senior Faculty',
+      isActive: true,
+    });
+    assert(!!createdFac, 'Faculty user created via CRUD engine');
+
+    // Update Faculty
+    createdFac.designation = 'Head of Department';
+    await createdFac.save();
+    const updatedFac = await UserModel.findOne({ email: testFacEmail });
+    assert(updatedFac?.designation === 'Head of Department', 'Faculty profile updated successfully');
+
+    // Delete Faculty
+    await UserModel.findOneAndDelete({ email: testFacEmail });
+    const deletedFac = await UserModel.findOne({ email: testFacEmail });
+    assert(!deletedFac, 'Faculty profile deleted successfully');
+
+    // 10. Nodemailer SMTP Configuration Test
+    console.log('\n--- 10. Nodemailer SMTP Setup & Transport ---');
     const transporter = getTransporter();
     assert(!!transporter, 'Nodemailer SMTP transport initialized with info@thewebvale.com credentials');
 
