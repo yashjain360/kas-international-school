@@ -137,41 +137,63 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  // Google OAuth initialization
+  // Google OAuth initialization with defensive retry
   useEffect(() => {
-    /* global google */
-    if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
-      const clientId =
-        process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-        '58469047666-bi3023asm478tntctln3lbg7vvkqgdc4.apps.googleusercontent.com';
+    let attempts = 0;
+    const maxAttempts = 15;
 
-      (window as any).google.accounts.id.initialize({
-        client_id: clientId,
-        callback: async (response: any) => {
-          if (response.credential) {
-            setSubmitting(true);
-            const res = await loginWithGoogle(response.credential);
-            setSubmitting(false);
-            if (res.success && res.user) {
-              if (res.user.role === 'admin') router.push('/erp/admin/dashboard');
-              else if (res.user.role === 'faculty') router.push('/erp/faculty/dashboard');
-              else router.push('/erp/student/dashboard');
-            } else {
-              setError(res.error || 'Google Sign-In failed');
-            }
+    const initGoogle = () => {
+      try {
+        if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+          const clientId =
+            process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+            '58469047666-bi3023asm478tntctln3lbg7vvkqgdc4.apps.googleusercontent.com';
+
+          (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response: any) => {
+              if (response?.credential) {
+                setSubmitting(true);
+                const res = await loginWithGoogle(response.credential);
+                setSubmitting(false);
+                if (res.success && res.user) {
+                  if (res.user.role === 'admin') router.push('/erp/admin/dashboard');
+                  else if (res.user.role === 'faculty') router.push('/erp/faculty/dashboard');
+                  else router.push('/erp/student/dashboard');
+                } else {
+                  setError(res.error || 'Google Sign-In failed');
+                }
+              }
+            },
+          });
+
+          const btn = document.getElementById('googleSignInBtn');
+          if (btn) {
+            btn.innerHTML = '';
+            (window as any).google.accounts.id.renderButton(btn, {
+              theme: 'outline',
+              size: 'large',
+              width: '100%',
+              text: 'continue_with',
+            });
           }
-        },
-      });
-
-      const btn = document.getElementById('googleSignInBtn');
-      if (btn) {
-        (window as any).google.accounts.id.renderButton(btn, {
-          theme: 'outline',
-          size: 'large',
-          width: '100%',
-          text: 'continue_with',
-        });
+          return true;
+        }
+      } catch (err) {
+        console.warn('Google auth init warning:', err);
       }
+      return false;
+    };
+
+    if (!initGoogle()) {
+      const interval = setInterval(() => {
+        attempts++;
+        if (initGoogle() || attempts >= maxAttempts) {
+          clearInterval(interval);
+        }
+      }, 300);
+
+      return () => clearInterval(interval);
     }
   }, [loginWithGoogle, router]);
 
