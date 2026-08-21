@@ -111,7 +111,46 @@ const FacultyProfileSchema = new Schema<IFacultyProfile>(
   { timestamps: true }
 );
 
-// 4. Fee Record
+// 4. Assessment Term / Timeline Model
+export interface IAssessmentTerm extends Document {
+  session: string; // '2026-2027', '2025-2026'
+  code: string; // 'FA1', 'FA2', 'SA1', 'FA3', 'FA4', 'SA2', 'PRE_BOARD'
+  title: string; // 'Formative Assessment 1 (FA-1)'
+  startDate: string; // '2026-07-15'
+  endDate: string; // '2026-07-25'
+  weightagePercentage: number; // e.g. 10, 20, 30
+  gradesApplicable: string[]; // ['Grade 10', 'Grade 9', 'Grade 8', 'Grade 6', 'Grade 4']
+  status: 'upcoming' | 'active' | 'evaluating' | 'published' | 'closed';
+  isPublished: boolean;
+  description?: string;
+  createdBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AssessmentTermSchema = new Schema<IAssessmentTerm>(
+  {
+    session: { type: String, required: true, default: '2026-2027' },
+    code: { type: String, required: true, uppercase: true, trim: true },
+    title: { type: String, required: true, trim: true },
+    startDate: { type: String, required: true },
+    endDate: { type: String, required: true },
+    weightagePercentage: { type: Number, default: 10 },
+    gradesApplicable: [{ type: String }],
+    status: {
+      type: String,
+      enum: ['upcoming', 'active', 'evaluating', 'published', 'closed'],
+      default: 'active',
+    },
+    isPublished: { type: Boolean, default: true },
+    description: { type: String },
+    createdBy: { type: String, default: 'Admin Academic Cell' },
+  },
+  { timestamps: true }
+);
+AssessmentTermSchema.index({ session: 1, code: 1 }, { unique: true });
+
+// 5. Fee Record
 export interface IFeeRecord extends Document {
   student: mongoose.Types.ObjectId;
   admissionNo: string;
@@ -171,7 +210,7 @@ const FeeRecordSchema = new Schema<IFeeRecord>(
   { timestamps: true }
 );
 
-// 5. Attendance Record
+// 6. Attendance Record
 export interface IAttendanceRecord extends Document {
   student: mongoose.Types.ObjectId;
   admissionNo: string;
@@ -200,7 +239,7 @@ const AttendanceRecordSchema = new Schema<IAttendanceRecord>(
 );
 AttendanceRecordSchema.index({ student: 1, date: 1 }, { unique: true });
 
-// 6. Grade Record / Report Card
+// 7. Grade Record / Report Card
 export interface IGradeSubject {
   name: string;
   maxMarks: number;
@@ -215,8 +254,10 @@ export interface IGradeRecord extends Document {
   studentName: string;
   grade: string;
   section: string;
-  academicYear: string;
-  examName: string; // 'Mid-Term Assessment 2026', 'Term 1 Comprehensive'
+  session: string; // '2026-2027', '2025-2026'
+  academicYear: string; // legacy support
+  termCode: string; // 'FA1', 'FA2', 'SA1', 'SA2'
+  examName: string; // 'Formative Assessment 1 (FA-1)'
   subjects: IGradeSubject[];
   totalMaxMarks: number;
   totalMarksObtained: number;
@@ -226,6 +267,8 @@ export interface IGradeRecord extends Document {
   rankInClass?: number;
   facultyRemarks: string;
   principalRemarks?: string;
+  issuedBy: string; // e.g. 'Prof. Meenakshi Iyer (Faculty)' or 'Principal Office'
+  issueDate: string;
   published: boolean;
 }
 
@@ -236,7 +279,9 @@ const GradeRecordSchema = new Schema<IGradeRecord>(
     studentName: { type: String, required: true },
     grade: { type: String, required: true },
     section: { type: String, required: true },
+    session: { type: String, required: true, default: '2026-2027' },
     academicYear: { type: String, default: '2026-2027' },
+    termCode: { type: String, required: true, uppercase: true, default: 'SA1' },
     examName: { type: String, required: true },
     subjects: [
       {
@@ -252,15 +297,18 @@ const GradeRecordSchema = new Schema<IGradeRecord>(
     percentage: { type: Number, required: true },
     overallGrade: { type: String, required: true },
     attendancePercentage: { type: Number, default: 95 },
-    rankInClass: { type: Number },
+    rankInClass: { type: Number, default: 1 },
     facultyRemarks: { type: String, default: 'Exemplary focus and positive attitude in class.' },
-    principalRemarks: { type: String, default: 'Promoted with commendation.' },
+    principalRemarks: { type: String, default: 'Promoted with academic distinction.' },
+    issuedBy: { type: String, default: 'Academic Department' },
+    issueDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
     published: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
+GradeRecordSchema.index({ student: 1, session: 1, termCode: 1 }, { unique: true });
 
-// 7. Lead Enquiry Model
+// 8. Lead Enquiry Model
 export interface ILeadEnquiry extends Document {
   enquiryNo: string;
   parentName: string;
@@ -310,7 +358,7 @@ const LeadEnquirySchema = new Schema<ILeadEnquiry>(
   { timestamps: true }
 );
 
-// 8. Notice Model
+// 9. Notice Model
 export interface INotice extends Document {
   title: string;
   content: string;
@@ -346,7 +394,7 @@ const NoticeSchema = new Schema<INotice>(
   { timestamps: true }
 );
 
-// 9. Broadcast Log Model
+// 10. Broadcast Log Model
 export interface IBroadcastLog extends Document {
   subject: string;
   messageHtml: string;
@@ -379,7 +427,7 @@ const BroadcastLogSchema = new Schema<IBroadcastLog>(
   { timestamps: true }
 );
 
-// 10. Timetable Model
+// 11. Timetable Model
 export interface ITimetablePeriod {
   periodNo: number;
   timeSlot: string;
@@ -423,6 +471,8 @@ export const StudentProfileModel: Model<IStudentProfile> =
   mongoose.models.StudentProfile || mongoose.model<IStudentProfile>('StudentProfile', StudentProfileSchema);
 export const FacultyProfileModel: Model<IFacultyProfile> =
   mongoose.models.FacultyProfile || mongoose.model<IFacultyProfile>('FacultyProfile', FacultyProfileSchema);
+export const AssessmentTermModel: Model<IAssessmentTerm> =
+  mongoose.models.AssessmentTerm || mongoose.model<IAssessmentTerm>('AssessmentTerm', AssessmentTermSchema);
 export const FeeRecordModel: Model<IFeeRecord> =
   mongoose.models.FeeRecord || mongoose.model<IFeeRecord>('FeeRecord', FeeRecordSchema);
 export const AttendanceRecordModel: Model<IAttendanceRecord> =

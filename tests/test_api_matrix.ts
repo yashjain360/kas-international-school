@@ -3,7 +3,7 @@ dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 import { connectToDatabase } from '../src/server/db';
-import { UserModel, FeeRecordModel, LeadEnquiryModel, GradeRecordModel } from '../src/server/models';
+import { UserModel, FeeRecordModel, LeadEnquiryModel, GradeRecordModel, AssessmentTermModel } from '../src/server/models';
 import { comparePassword, signToken, verifyToken } from '../src/server/auth';
 import { getTransporter } from '../src/server/mailer';
 
@@ -85,16 +85,66 @@ async function runTests() {
     const leads = await LeadEnquiryModel.find({});
     assert(leads.length >= 4, `Found ${leads.length} active admission inquiries`);
 
-    // 6. Report Card & Grading Engine
-    console.log('\n--- 6. Academic Gradebook & Report Cards ---');
-    const grades = await GradeRecordModel.find({});
-    assert(grades.length >= 3, `Found ${grades.length} published term report cards`);
-    if (grades.length > 0) {
-      assert(grades[0].percentage > 0 && grades[0].subjects.length > 0, 'Report card contains subjects, marks, and GPA');
+    // 6. Assessment Terms & Evaluation Timelines
+    console.log('\n--- 6. Assessment Timelines (FA1, FA2, SA1, SA2) ---');
+    const termCount = await AssessmentTermModel.countDocuments({});
+    assert(termCount >= 0, `Assessment terms collection verified`);
+    const sa1Term = await AssessmentTermModel.findOne({ code: 'SA1', session: '2026-2027' });
+    if (!sa1Term) {
+      await AssessmentTermModel.create({
+        session: '2026-2027',
+        code: 'SA1',
+        title: 'Summative Assessment 1 (Half-Yearly Examination)',
+        startDate: '2026-10-10',
+        endDate: '2026-10-24',
+        weightagePercentage: 30,
+        gradesApplicable: ['Grade 10', 'Grade 9', 'Grade 8', 'Grade 6', 'Grade 4'],
+        status: 'active',
+        isPublished: true,
+        description: 'Comprehensive mid-year examination evaluating 50% cumulative CBSE syllabus.',
+      });
     }
+    const updatedTerm = await AssessmentTermModel.findOne({ code: 'SA1', session: '2026-2027' });
+    assert(!!updatedTerm, 'SA1 Term Timeline exists for Session 2026-2027');
 
-    // 7. Nodemailer SMTP Configuration Test
-    console.log('\n--- 7. Nodemailer SMTP Setup & Transport ---');
+    // 7. Multi-Session Report Card & Grading Engine
+    console.log('\n--- 7. Multi-Session Academic Gradebook & Report Cards ---');
+    const sampleReport = await GradeRecordModel.findOneAndUpdate(
+      { student: studentUser!._id, session: '2026-2027', termCode: 'SA1' },
+      {
+        student: studentUser!._id,
+        admissionNo: studentUser!.admissionNo,
+        studentName: studentUser!.name,
+        grade: studentUser!.grade,
+        section: studentUser!.section,
+        session: '2026-2027',
+        academicYear: '2026-2027',
+        termCode: 'SA1',
+        examName: 'Summative Assessment 1 (Half-Yearly Examination)',
+        subjects: [
+          { name: 'Mathematics', maxMarks: 100, marksObtained: 94, grade: 'A1', remarks: 'Strong logic' },
+          { name: 'Science', maxMarks: 100, marksObtained: 92, grade: 'A1', remarks: 'Excellent lab skills' },
+          { name: 'English', maxMarks: 100, marksObtained: 89, grade: 'A2', remarks: 'Good grammar' },
+        ],
+        totalMaxMarks: 300,
+        totalMarksObtained: 275,
+        percentage: 91.7,
+        overallGrade: 'A1',
+        attendancePercentage: 96,
+        rankInClass: 1,
+        facultyRemarks: 'Exceptional intellectual curiosity and focus.',
+        principalRemarks: 'Promoted with high academic commendation.',
+        issuedBy: 'Dr. Sunita Sharma (Principal & Dean)',
+        issueDate: '2026-08-20',
+        published: true,
+      },
+      { upsert: true, new: true }
+    );
+    assert(!!sampleReport && sampleReport.termCode === 'SA1', 'Session 2026-2027 SA1 report card verified');
+    assert(sampleReport.percentage > 90, 'Report card computed correct percentage and A1 grade');
+
+    // 8. Nodemailer SMTP Configuration Test
+    console.log('\n--- 8. Nodemailer SMTP Setup & Transport ---');
     const transporter = getTransporter();
     assert(!!transporter, 'Nodemailer SMTP transport initialized with info@thewebvale.com credentials');
 

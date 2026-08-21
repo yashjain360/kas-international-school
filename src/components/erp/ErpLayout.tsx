@@ -60,6 +60,7 @@ export function ErpLayout({
     { name: 'Executive Dashboard', href: '/erp/admin/dashboard', icon: LayoutDashboard },
     { name: 'Admissions & Leads CRM', href: '/erp/admin/leads', icon: UserPlus },
     { name: 'Fee Ledger & Reminders', href: '/erp/admin/fees', icon: CreditCard },
+    { name: 'Assessment & Report Cards', href: '/erp/admin/academics', icon: Award },
     { name: 'Email Broadcast Center', href: '/erp/admin/broadcasts', icon: Send },
     { name: 'Student Roster', href: '/erp/admin/students', icon: Users },
     { name: 'Faculty Directory', href: '/erp/admin/faculty', icon: School },

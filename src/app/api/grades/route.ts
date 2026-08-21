@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/server/db';
-import { GradeRecordModel, UserModel } from '@/server/models';
+import { GradeRecordModel, UserModel, AssessmentTermModel } from '@/server/models';
 import { getSessionUser } from '@/server/auth';
 
 function calculateGrade(percentage: number): string {
@@ -24,19 +24,25 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const grade = searchParams.get('grade');
     const examName = searchParams.get('examName');
+    const termCode = searchParams.get('termCode');
+    const session = searchParams.get('session');
 
     await connectToDatabase();
 
+    const query: any = {};
+    if (session && session !== 'all') query.session = session;
+    if (termCode && termCode !== 'all') query.termCode = termCode.toUpperCase();
+    if (examName && examName !== 'all') query.examName = examName;
+    if (grade && grade !== 'all') query.grade = grade;
+
     if (user.role === 'student') {
-      const records = await GradeRecordModel.find({ student: user._id, published: true }).sort({ createdAt: -1 });
+      query.student = user._id;
+      query.published = true;
+      const records = await GradeRecordModel.find(query).sort({ session: -1, termCode: 1, createdAt: -1 });
       return NextResponse.json({ success: true, records });
     }
 
-    const query: any = {};
-    if (grade && grade !== 'all') query.grade = grade;
-    if (examName && examName !== 'all') query.examName = examName;
-
-    const records = await GradeRecordModel.find(query).sort({ grade: 1, admissionNo: 1 });
+    const records = await GradeRecordModel.find(query).sort({ session: -1, grade: 1, termCode: 1, admissionNo: 1 });
     return NextResponse.json({ success: true, records });
   } catch (error: any) {
     console.error('Grades fetch error:', error);
@@ -48,13 +54,26 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getSessionUser(req);
     if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
-      return NextResponse.json({ error: 'Faculty or Admin credentials required.' }, { status: 403 });
+      return NextResponse.json({ error: 'Faculty or Admin credentials required to issue report cards.' }, { status: 403 });
     }
 
-    const { admissionNo, examName, subjects, facultyRemarks, attendancePercentage } = await req.json();
+    const {
+      admissionNo,
+      session = '2026-2027',
+      termCode = 'SA1',
+      examName,
+      subjects,
+      facultyRemarks,
+      principalRemarks,
+      attendancePercentage,
+      rankInClass,
+    } = await req.json();
 
-    if (!admissionNo || !examName || !Array.isArray(subjects) || subjects.length === 0) {
-      return NextResponse.json({ error: 'Admission number, exam name, and subjects list are required.' }, { status: 400 });
+    if (!admissionNo || !Array.isArray(subjects) || subjects.length === 0) {
+      return NextResponse.json(
+        { error: 'Admission number and subjects list are required.' },
+        { status: 400 }
+      );
     }
 
     await connectToDatabase();
@@ -62,6 +81,23 @@ export async function POST(req: NextRequest) {
     if (!studentUser) {
       return NextResponse.json({ error: 'Student with this admission number not found.' }, { status: 404 });
     }
+
+    const normalizedTermCode = (termCode || 'SA1').toUpperCase().trim();
+    const finalExamName =
+      examName ||
+      (normalizedTermCode === 'FA1'
+        ? 'Formative Assessment 1 (FA-1)'
+        : normalizedTermCode === 'FA2'
+        ? 'Formative Assessment 2 (FA-2)'
+        : normalizedTermCode === 'SA1'
+        ? 'Summative Assessment 1 (Half-Yearly Examination)'
+        : normalizedTermCode === 'FA3'
+        ? 'Formative Assessment 3 (FA-3)'
+        : normalizedTermCode === 'FA4'
+        ? 'Formative Assessment 4 (FA-4 / Pre-Boards)'
+        : normalizedTermCode === 'SA2'
+        ? 'Summative Assessment 2 (Annual Final Examination)'
+        : `${normalizedTermCode} Assessment`);
 
     let totalMaxMarks = 0;
     let totalMarksObtained = 0;
@@ -84,22 +120,33 @@ export async function POST(req: NextRequest) {
     const percentage = totalMaxMarks > 0 ? Number(((totalMarksObtained / totalMaxMarks) * 100).toFixed(1)) : 0;
     const overallGrade = calculateGrade(percentage);
 
+    const issuer = user.role === 'admin'
+      ? `${user.name} (Admin Office)`
+      : `${user.name} (Faculty In-Charge)`;
+
     const record = await GradeRecordModel.findOneAndUpdate(
-      { student: studentUser._id, examName },
+      { student: studentUser._id, session, termCode: normalizedTermCode },
       {
         student: studentUser._id,
         admissionNo: studentUser.admissionNo,
         studentName: studentUser.name,
         grade: studentUser.grade,
         section: studentUser.section,
-        examName,
+        session,
+        academicYear: session,
+        termCode: normalizedTermCode,
+        examName: finalExamName,
         subjects: processedSubjects,
         totalMaxMarks,
         totalMarksObtained,
         percentage,
         overallGrade,
         attendancePercentage: attendancePercentage || 95,
+        rankInClass: rankInClass || 1,
         facultyRemarks: facultyRemarks || 'Continues to show exemplary discipline and dedication.',
+        principalRemarks: principalRemarks || 'Promoted with academic commendation.',
+        issuedBy: issuer,
+        issueDate: new Date().toISOString().split('T')[0],
         published: true,
       },
       { upsert: true, new: true }
@@ -107,7 +154,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Report card for ${studentUser.name} (${examName}) saved successfully.`,
+      message: `Report card for ${studentUser.name} (${normalizedTermCode} • Session ${session}) issued successfully.`,
       record,
     });
   } catch (error: any) {

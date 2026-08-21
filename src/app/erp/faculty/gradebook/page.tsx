@@ -9,13 +9,20 @@ import {
   CheckCircle2,
   AlertCircle,
   Users,
+  Calendar,
+  Sparkles,
 } from 'lucide-react';
 import { ErpLayout } from '@/components/erp/ErpLayout';
 
 export default function FacultyGradebookPage() {
   const [students, setStudents] = useState<any[]>([]);
+  const [terms, setTerms] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<string[]>(['2026-2027', '2025-2026']);
+  const [selectedSession, setSelectedSession] = useState<string>('2026-2027');
+  const [selectedTermCode, setSelectedTermCode] = useState<string>('SA1');
   const [selectedStudent, setSelectedStudent] = useState<string>('KAS2026-1001');
-  const [examName, setExamName] = useState('Mid-Term Comprehensive Assessment 2026');
+  const [examName, setExamName] = useState('Summative Assessment 1 (Half-Yearly Examination)');
+  const [attendancePercentage, setAttendancePercentage] = useState(96);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -30,22 +37,42 @@ export default function FacultyGradebookPage() {
   const [facultyRemarks, setFacultyRemarks] = useState(
     'Demonstrates consistent intellectual dedication and leadership in class projects.'
   );
+  const [principalRemarks, setPrincipalRemarks] = useState(
+    'Promoted with academic distinction.'
+  );
 
   useEffect(() => {
-    fetch('/api/students?grade=all')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.students && data.students.length > 0) {
-          setStudents(data.students);
+    Promise.all([
+      fetch('/api/students?grade=all').then((r) => r.json()),
+      fetch(`/api/terms?session=${selectedSession}`).then((r) => r.json()),
+    ])
+      .then(([studentsData, termsData]) => {
+        if (studentsData.students && studentsData.students.length > 0) {
+          setStudents(studentsData.students);
+        }
+        if (termsData.terms && termsData.terms.length > 0) {
+          setTerms(termsData.terms);
+          if (termsData.sessions) setSessions(termsData.sessions);
+          const found = termsData.terms.find((t: any) => t.code === selectedTermCode) || termsData.terms[0];
+          setSelectedTermCode(found.code);
+          setExamName(found.title);
         }
       })
-      .catch((err) => console.error('Students error:', err));
-  }, []);
+      .catch((err) => console.error('Gradebook init error:', err));
+  }, [selectedSession]);
 
   const handleMarksChange = (idx: number, field: string, value: any) => {
     const updated = [...subjects];
     (updated[idx] as any)[field] = value;
     setSubjects(updated);
+  };
+
+  const handleTermSelect = (code: string) => {
+    setSelectedTermCode(code);
+    const matching = terms.find((t) => t.code === code);
+    if (matching) {
+      setExamName(matching.title);
+    }
   };
 
   const handleSaveGrades = async (e: React.FormEvent) => {
@@ -59,10 +86,13 @@ export default function FacultyGradebookPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           admissionNo: selectedStudent,
+          session: selectedSession,
+          termCode: selectedTermCode,
           examName,
           subjects,
           facultyRemarks,
-          attendancePercentage: 96,
+          principalRemarks,
+          attendancePercentage: Number(attendancePercentage) || 95,
         }),
       });
       const data = await res.json();
@@ -117,33 +147,47 @@ export default function FacultyGradebookPage() {
 
         {/* Grade Entry Form */}
         <form onSubmit={handleSaveGrades} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-7 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block font-bold text-slate-300 mb-1.5">Select Student Scholar *</label>
+              <label className="block font-bold text-slate-300 mb-1.5">Academic Session *</label>
               <select
-                value={selectedStudent}
-                onChange={(e) => setSelectedStudent(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium focus:outline-hidden"
+                value={selectedSession}
+                onChange={(e) => setSelectedSession(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium focus:outline-hidden cursor-pointer"
               >
-                {students.map((st) => (
-                  <option key={st.id} value={st.admissionNo}>
-                    {st.name} ({st.admissionNo} • {st.grade}-{st.section})
+                {sessions.map((s) => (
+                  <option key={s} value={s}>Session {s}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-300 mb-1.5">Assessment Term Timeline *</label>
+              <select
+                value={selectedTermCode}
+                onChange={(e) => handleTermSelect(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-amber-400 font-mono font-bold focus:outline-hidden cursor-pointer"
+              >
+                {terms.map((t) => (
+                  <option key={t.code} value={t.code}>
+                    {t.code} — {t.title}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block font-bold text-slate-300 mb-1.5">Assessment Term *</label>
+              <label className="block font-bold text-slate-300 mb-1.5">Select Student Scholar *</label>
               <select
-                value={examName}
-                onChange={(e) => setExamName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium focus:outline-hidden"
+                value={selectedStudent}
+                onChange={(e) => setSelectedStudent(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-medium focus:outline-hidden cursor-pointer"
               >
-                <option value="Mid-Term Comprehensive Assessment 2026">Mid-Term Comprehensive Assessment 2026</option>
-                <option value="Term 1 Final Assessment">Term 1 Final Assessment</option>
-                <option value="Periodic Unit Test 2">Periodic Unit Test 2</option>
-                <option value="Pre-Board Mock Assessment 2026-27">Pre-Board Mock Assessment 2026-27</option>
+                {students.map((st) => (
+                  <option key={st.id} value={st.admissionNo}>
+                    {st.name} ({st.admissionNo} • {st.grade}-{st.section})
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -203,14 +247,25 @@ export default function FacultyGradebookPage() {
           </div>
 
           {/* Qualitative Teacher Remarks */}
-          <div className="space-y-1.5 text-xs">
-            <label className="block font-bold text-slate-300">Overall Mentor Assessment & Remarks</label>
-            <textarea
-              rows={3}
-              value={facultyRemarks}
-              onChange={(e) => setFacultyRemarks(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-hidden"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="space-y-1.5">
+              <label className="block font-bold text-slate-300">Overall Mentor Assessment & Remarks</label>
+              <textarea
+                rows={3}
+                value={facultyRemarks}
+                onChange={(e) => setFacultyRemarks(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-hidden"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block font-bold text-slate-300">Principal's Commendation Note</label>
+              <textarea
+                rows={3}
+                value={principalRemarks}
+                onChange={(e) => setPrincipalRemarks(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-hidden"
+              />
+            </div>
           </div>
 
           {/* Submit */}
@@ -218,7 +273,7 @@ export default function FacultyGradebookPage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 disabled:opacity-50"
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-2 disabled:opacity-50 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Recording & Publishing...' : 'Save & Publish Report Card'}</span>
