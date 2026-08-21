@@ -3,7 +3,7 @@ dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 import { connectToDatabase } from '../src/server/db';
-import { UserModel, FeeRecordModel, LeadEnquiryModel, GradeRecordModel, AssessmentTermModel, TimetableModel } from '../src/server/models';
+import { UserModel, StudentProfileModel, FeeRecordModel, LeadEnquiryModel, GradeRecordModel, AssessmentTermModel, TimetableModel } from '../src/server/models';
 import { comparePassword, signToken, verifyToken } from '../src/server/auth';
 import { getTransporter } from '../src/server/mailer';
 
@@ -184,8 +184,60 @@ async function runTests() {
     const deletedFac = await UserModel.findOne({ email: testFacEmail });
     assert(!deletedFac, 'Faculty profile deleted successfully');
 
-    // 10. Nodemailer SMTP Configuration Test
-    console.log('\n--- 10. Nodemailer SMTP Setup & Transport ---');
+    // 10. Student CRUD Operations Test
+    console.log('\n--- 10. Student CRUD Operations Test ---');
+    const testStudentEmail = 'student.crud.test@kasinternationalschool.org';
+    await UserModel.findOneAndDelete({ email: testStudentEmail });
+    await StudentProfileModel.deleteMany({ parentEmail: testStudentEmail });
+
+    const createdStudent = await UserModel.create({
+      name: 'Test Student CRUD',
+      email: testStudentEmail,
+      role: 'student',
+      admissionNo: 'KAS2026-9999',
+      grade: 'Grade 10',
+      section: 'A',
+      phone: '+91 99999 88888',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+    });
+    const createdProfile = await StudentProfileModel.create({
+      user: createdStudent._id,
+      admissionNo: 'KAS2026-9999',
+      rollNo: '10A-99',
+      grade: 'Grade 10',
+      section: 'A',
+      dob: '2011-05-15',
+      address: 'Regal Town, Bhopal',
+      emergencyContact: '+91 99999 88888',
+      parentName: 'Test Parent',
+      parentPhone: '+91 99999 88888',
+      parentEmail: testStudentEmail,
+      bloodGroup: 'B+',
+      gender: 'Male',
+      busRoute: 'Route 4 - Regal Town',
+    });
+    assert(!!createdStudent && !!createdProfile, 'Student record created via CRUD engine');
+
+    // Update Student
+    createdStudent.name = 'Test Student Updated';
+    createdStudent.grade = 'Grade 9';
+    await createdStudent.save();
+    await StudentProfileModel.findOneAndUpdate(
+      { user: createdStudent._id },
+      { $set: { grade: 'Grade 9', busRoute: 'Route 2 - Awadhpuri' } }
+    );
+    const updatedStudent = await UserModel.findOne({ email: testStudentEmail });
+    const updatedProfile = await StudentProfileModel.findOne({ user: createdStudent._id });
+    assert(updatedStudent?.name === 'Test Student Updated' && updatedProfile?.grade === 'Grade 9', 'Student profile and class updated successfully');
+
+    // Delete Student
+    await StudentProfileModel.deleteMany({ user: createdStudent._id });
+    await UserModel.findByIdAndDelete(createdStudent._id);
+    const deletedStudent = await UserModel.findOne({ email: testStudentEmail });
+    assert(!deletedStudent, 'Student record and linked profile deleted successfully');
+
+    // 11. Nodemailer SMTP Configuration Test
+    console.log('\n--- 11. Nodemailer SMTP Setup & Transport ---');
     const transporter = getTransporter();
     assert(!!transporter, 'Nodemailer SMTP transport initialized with info@thewebvale.com credentials');
 
