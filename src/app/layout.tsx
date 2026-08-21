@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import { AosProvider } from '@/components/AosProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 
@@ -34,9 +35,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased text-slate-900 bg-slate-50">
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <AosProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </AosProvider>
         </AuthProvider>
       </body>
     </html>

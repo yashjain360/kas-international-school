@@ -35,10 +35,10 @@ export default function FacultyPage() {
     : facultyList.filter((f) => f.department === selectedDept);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
         {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="text-center space-y-4 max-w-3xl mx-auto" data-aos="fade-up">
           <span className="text-xs font-bold text-blue-900 uppercase tracking-wider bg-blue-100/60 border border-blue-200 px-3.5 py-1.5 rounded-full">
             Scholastic Mentorship & Faculty
           </span>
@@ -51,12 +51,12 @@ export default function FacultyPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-2 justify-center" data-aos="fade-up" data-aos-delay="100">
           {departments.map((dept) => (
             <button
               key={dept}
               onClick={() => setSelectedDept(dept)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 selectedDept === dept
                   ? 'bg-[#0F2942] text-white shadow-xs'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -72,9 +72,11 @@ export default function FacultyPage() {
           <div className="text-center py-20 text-slate-500 text-sm">Loading Faculty Directory...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredFaculty.map((member) => (
+            {filteredFaculty.map((member, idx) => (
               <div
                 key={member.id}
+                data-aos="fade-up"
+                data-aos-delay={(idx % 3) * 100}
                 className="bg-white rounded-2xl shadow-xs border border-slate-200 p-6 flex flex-col justify-between hover:shadow-md transition-shadow space-y-6"
               >
                 <div className="space-y-4">
@@ -108,8 +110,8 @@ export default function FacultyPage() {
                     <div className="space-y-1 pt-2">
                       <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Key Subjects</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {member.subjects.map((sub: string, idx: number) => (
-                          <span key={idx} className="bg-blue-50 text-blue-900 text-[11px] font-medium px-2.5 py-0.5 rounded-md">
+                        {member.subjects.map((sub: string, i: number) => (
+                          <span key={i} className="bg-blue-50 text-blue-900 text-[11px] font-medium px-2.5 py-0.5 rounded-md">
                             {sub}
                           </span>
                         ))}

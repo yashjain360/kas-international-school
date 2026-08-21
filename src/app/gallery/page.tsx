@@ -220,9 +220,9 @@ export default function GalleryPage() {
       : galleryItems.filter((item) => item.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden">
       {/* Header Banner */}
-      <section className="bg-linear-to-b from-[#0F2942] to-[#133352] text-white py-16 px-4 sm:px-8 text-center space-y-4">
+      <section className="bg-linear-to-b from-[#0F2942] to-[#133352] text-white py-16 px-4 sm:px-8 text-center space-y-4" data-aos="fade-down">
         <div className="max-w-4xl mx-auto space-y-3">
           <div className="inline-flex items-center space-x-2 bg-amber-400/10 border border-amber-400/30 px-3.5 py-1 rounded-full text-amber-300 text-xs font-bold uppercase tracking-wider">
             <Camera className="w-3.5 h-3.5" />
@@ -240,7 +240,7 @@ export default function GalleryPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 space-y-8">
         {/* Category Filters */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none" data-aos="fade-up">
           {categories.map((cat) => (
             <button
               key={cat.id}
@@ -258,9 +258,11 @@ export default function GalleryPage() {
 
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
+          {filteredItems.map((item, idx) => (
             <div
               key={item.id}
+              data-aos="zoom-in"
+              data-aos-delay={(idx % 3) * 100}
               onClick={() => setActiveModalItem(item)}
               className="bg-white rounded-2xl overflow-hidden shadow-xs border border-slate-200 hover:shadow-lg transition-all group cursor-pointer flex flex-col justify-between"
             >
@@ -316,7 +318,7 @@ export default function GalleryPage() {
         {/* Modal View for Photos & Videos */}
         {activeModalItem && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative text-white">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative text-white" data-aos="zoom-in">
               <button
                 onClick={() => setActiveModalItem(null)}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white p-2"
@@ -359,7 +361,7 @@ export default function GalleryPage() {
                 </p>
                 <button
                   onClick={() => setActiveModalItem(null)}
-                  className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold shrink-0 self-start sm:self-auto"
+                  className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold shrink-0 self-start sm:self-auto cursor-pointer"
                 >
                   Close Viewer
                 </button>

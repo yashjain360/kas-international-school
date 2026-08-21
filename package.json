@@ -10,6 +10,8 @@
     "test:api": "tsx tests/test_api_matrix.ts"
   },
   "dependencies": {
+    "@types/aos": "^3.0.8",
+    "aos": "^2.3.4",
     "bcryptjs": "^3.0.2",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",

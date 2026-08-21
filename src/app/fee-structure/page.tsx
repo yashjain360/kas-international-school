@@ -54,10 +54,10 @@ export default function FeeStructurePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
         {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="text-center space-y-4 max-w-3xl mx-auto" data-aos="fade-up">
           <span className="text-xs font-bold text-blue-900 uppercase tracking-wider bg-blue-100/60 border border-blue-200 px-3.5 py-1.5 rounded-full">
             Transparent & Regulated Structure
           </span>
@@ -70,7 +70,7 @@ export default function FeeStructurePage() {
         </div>
 
         {/* Master Fee Table */}
-        <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden" data-aos="fade-up">
           <div className="p-6 bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h3 className="font-bold text-lg text-amber-400">Scholastic Grade Fee Schedule (2026–27)</h3>
@@ -117,28 +117,28 @@ export default function FeeStructurePage() {
 
         {/* 4 Quarterly Due Dates */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2" data-aos="zoom-in" data-aos-delay="100">
             <span className="text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md">Installment 1</span>
             <h4 className="font-bold text-sm text-slate-900">Quarter 1 (Apr – Jun)</h4>
             <p className="text-xs text-red-600 font-semibold">Due on or before April 15, 2026</p>
             <p className="text-[11px] text-slate-500">Includes admission composite reconciliation.</p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2" data-aos="zoom-in" data-aos-delay="200">
             <span className="text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md">Installment 2</span>
             <h4 className="font-bold text-sm text-slate-900">Quarter 2 (Jul – Sep)</h4>
             <p className="text-xs text-red-600 font-semibold">Due on or before July 15, 2026</p>
             <p className="text-[11px] text-slate-500">Includes mid-term assessment materials.</p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2" data-aos="zoom-in" data-aos-delay="300">
             <span className="text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md">Installment 3</span>
             <h4 className="font-bold text-sm text-slate-900">Quarter 3 (Oct – Dec)</h4>
             <p className="text-xs text-red-600 font-semibold">Due on or before October 15, 2026</p>
             <p className="text-[11px] text-slate-500">Includes sports meet & annual fest events.</p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-2" data-aos="zoom-in" data-aos-delay="400">
             <span className="text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md">Installment 4</span>
             <h4 className="font-bold text-sm text-slate-900">Quarter 4 (Jan – Mar)</h4>
             <p className="text-xs text-red-600 font-semibold">Due on or before January 15, 2027</p>
@@ -148,7 +148,7 @@ export default function FeeStructurePage() {
 
         {/* Transport & Concession Policy */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-8 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+          <div className="bg-white p-8 rounded-2xl shadow-xs border border-slate-200 space-y-4" data-aos="fade-right">
             <h3 className="text-xl font-bold text-[#0F2942] flex items-center">
               <CreditCard className="w-5 h-5 text-amber-500 mr-2" />
               School Bus & Transport Slabs
@@ -172,7 +172,7 @@ export default function FeeStructurePage() {
             </ul>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+          <div className="bg-white p-8 rounded-2xl shadow-xs border border-slate-200 space-y-4" data-aos="fade-left">
             <h3 className="text-xl font-bold text-[#0F2942] flex items-center">
               <ShieldCheck className="w-5 h-5 text-emerald-600 mr-2" />
               Scholarships & Sibling Concession
@@ -191,7 +191,7 @@ export default function FeeStructurePage() {
         </div>
 
         {/* CTA */}
-        <div className="text-center pt-4">
+        <div className="text-center pt-4" data-aos="fade-up">
           <Link
             href="/admissions"
             className="inline-flex items-center space-x-2 bg-[#0F2942] hover:bg-blue-900 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"

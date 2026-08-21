@@ -47,10 +47,10 @@ export default function NoticesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-12">
         {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="text-center space-y-4 max-w-3xl mx-auto" data-aos="fade-up">
           <span className="text-xs font-bold text-blue-900 uppercase tracking-wider bg-blue-100/60 border border-blue-200 px-3.5 py-1.5 rounded-full">
             Official Announcements
           </span>
@@ -63,13 +63,13 @@ export default function NoticesPage() {
         </div>
 
         {/* Controls Bar */}
-        <div className="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4" data-aos="fade-up" data-aos-delay="100">
           <div className="flex flex-wrap gap-2">
             {categories.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setSelectedCategory(c.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedCategory === c.id
                     ? 'bg-[#0F2942] text-white shadow-xs'
                     : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -101,9 +101,11 @@ export default function NoticesPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredNotices.map((notice) => (
+            {filteredNotices.map((notice, idx) => (
               <div
                 key={notice._id}
+                data-aos="fade-up"
+                data-aos-delay={(idx % 4) * 80}
                 className={`bg-white p-6 sm:p-7 rounded-2xl border transition-all ${
                   notice.isPinned
                     ? 'border-amber-300 bg-linear-to-r from-amber-50/30 to-white shadow-xs'

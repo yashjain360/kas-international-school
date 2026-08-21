@@ -59,10 +59,10 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
         {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="text-center space-y-4 max-w-3xl mx-auto" data-aos="fade-up">
           <span className="text-xs font-bold text-blue-900 uppercase tracking-wider bg-blue-100/60 border border-blue-200 px-3.5 py-1.5 rounded-full">
             Campus Secretariat & Location
           </span>
@@ -77,7 +77,7 @@ export default function ContactPage() {
         {/* 2-Column: Details and Form */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Campus Details */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6" data-aos="fade-right">
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 space-y-6">
               <h3 className="text-xl font-bold text-[#0F2942]">Campus Coordinates</h3>
 
@@ -129,7 +129,7 @@ export default function ContactPage() {
             </div>
 
             {/* Transport Route Node Map summary */}
-            <div className="bg-[#0F2942] text-white p-6 rounded-2xl space-y-3">
+            <div className="bg-[#0F2942] text-white p-6 rounded-2xl space-y-3" data-aos="fade-up" data-aos-delay="100">
               <h4 className="font-bold text-sm text-amber-400">Bus Transport Connectivity</h4>
               <p className="text-xs text-slate-200 leading-relaxed">
                 Dedicated fleet servicing Regal Town, Awadhpuri, Piplani, Govindpura, Indrapuri, Ayodhya Bypass, and Anand Nagar.
@@ -138,7 +138,7 @@ export default function ContactPage() {
           </div>
 
           {/* Right Column: Contact Inquiry Form */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7" data-aos="fade-left">
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 space-y-6">
               <div className="border-b border-slate-100 pb-4">
                 <h3 className="text-xl font-bold text-[#0F2942]">Send an Institutional Inquiry</h3>
@@ -238,7 +238,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-[#0F2942] hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50"
+                  className="w-full bg-[#0F2942] hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                 >
                   <Send className="w-4 h-4 text-amber-400" />
                   <span>{submitting ? 'Transmitting Message...' : 'Send Inquiry to Campus Desk'}</span>

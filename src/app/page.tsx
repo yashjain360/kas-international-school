@@ -106,14 +106,13 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
       {/* 1. HERO SECTION */}
       <section className="relative overflow-hidden bg-linear-to-b from-[#0F2942] via-[#133352] to-[#0A1D30] text-white py-16 lg:py-24">
-        {/* Subtle background glow */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-6" data-aos="fade-right" data-aos-duration="1000">
             <div className="inline-flex items-center space-x-2 bg-amber-500/15 border border-amber-400/30 px-3.5 py-1.5 rounded-full text-amber-300 text-xs font-semibold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Admissions Open For Academic Year 2026–2027</span>
@@ -155,7 +154,7 @@ export default function HomePage() {
             </div>
 
             {/* Micro Highlights */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-700/60 max-w-lg">
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-700/60 max-w-lg" data-aos="fade-up" data-aos-delay="200">
               <div>
                 <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">100%</p>
                 <p className="text-xs text-slate-400 font-medium">CBSE Curriculum Standards</p>
@@ -172,7 +171,7 @@ export default function HomePage() {
           </div>
 
           {/* Hero Visual Card / Direct Quick Inquiry */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="150">
             <div className="bg-white text-slate-900 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
                 <div>
@@ -295,7 +294,7 @@ export default function HomePage() {
 
       {/* 2. CAMPUS LIFE, PHOTOS & VIDEO REELS SHOWCASE */}
       <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4" data-aos="fade-up">
           <div className="space-y-3 max-w-2xl">
             <span className="text-xs font-bold text-amber-800 uppercase tracking-wider bg-amber-100/70 border border-amber-300 px-3.5 py-1.5 rounded-full inline-flex items-center">
               <Camera className="w-3.5 h-3.5 mr-1.5 text-amber-700" />
@@ -318,11 +317,13 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* 4 Video Reels Cards */}
+        {/* 4 Video Reels Cards with Staggered AOS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {videoReels.map((reel, idx) => (
             <div
               key={idx}
+              data-aos="zoom-in"
+              data-aos-delay={idx * 100}
               onClick={() => setSelectedVideo(reel)}
               className="bg-white rounded-2xl overflow-hidden shadow-xs border border-slate-200 group hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
             >
@@ -366,7 +367,7 @@ export default function HomePage() {
         {/* Video Player Modal */}
         {selectedVideo && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative text-white">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl relative text-white" data-aos="zoom-in">
               <button
                 onClick={() => setSelectedVideo(null)}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white p-2"
@@ -417,7 +418,7 @@ export default function HomePage() {
       {/* 3. LEADERSHIP & FOUNDER MESSAGE */}
       <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full border-t border-slate-200">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-6">
+          <div className="space-y-6" data-aos="fade-right">
             <div className="inline-flex items-center space-x-2 text-blue-900 text-xs font-bold uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-md">
               <Award className="w-4 h-4 text-amber-500" />
               <span>Chairman & Founder's Vision</span>
@@ -438,7 +439,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3">
+            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3" data-aos="fade-up" data-aos-delay="100">
               <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-900 flex items-center justify-center font-bold">
                 <BookOpen className="w-5 h-5" />
               </div>
@@ -448,7 +449,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3">
+            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3" data-aos="fade-up" data-aos-delay="200">
               <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
                 <Sparkles className="w-5 h-5" />
               </div>
@@ -458,7 +459,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3">
+            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3" data-aos="fade-up" data-aos-delay="300">
               <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold">
                 <ShieldCheck className="w-5 h-5" />
               </div>
@@ -468,7 +469,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3">
+            <div className="p-6 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-3" data-aos="fade-up" data-aos-delay="400">
               <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-900 flex items-center justify-center font-bold">
                 <Users className="w-5 h-5" />
               </div>
@@ -484,7 +485,7 @@ export default function HomePage() {
       {/* 4. FOUR ACADEMIC PILLARS */}
       <section className="bg-slate-100 py-16 px-4 sm:px-8 border-y border-slate-200">
         <div className="max-w-7xl mx-auto space-y-10">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="text-center space-y-3 max-w-2xl mx-auto" data-aos="fade-up">
             <span className="text-xs font-bold text-blue-900 uppercase tracking-wider bg-blue-50 border border-blue-200 px-3 py-1 rounded-md">
               Comprehensive Growth
             </span>
@@ -495,7 +496,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4" data-aos="fade-up" data-aos-delay="100">
               <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center">
                 <BookOpen className="w-6 h-6" />
               </div>
@@ -509,7 +510,7 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4" data-aos="fade-up" data-aos-delay="200">
               <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center">
                 <Compass className="w-6 h-6" />
               </div>
@@ -523,7 +524,7 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4" data-aos="fade-up" data-aos-delay="300">
               <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
                 <Award className="w-6 h-6" />
               </div>
@@ -537,7 +538,7 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4" data-aos="fade-up" data-aos-delay="400">
               <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-800 flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
               </div>
@@ -556,7 +557,7 @@ export default function HomePage() {
 
       {/* 5. ADMISSIONS PROCESS TIMELINE */}
       <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto w-full">
-        <div className="text-center space-y-3 max-w-2xl mx-auto mb-12">
+        <div className="text-center space-y-3 max-w-2xl mx-auto mb-12" data-aos="fade-up">
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider bg-amber-50 border border-amber-200 px-3 py-1 rounded-md">
             Seamless Enrollment
           </span>
@@ -567,7 +568,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3" data-aos="fade-up" data-aos-delay="100">
             <div className="w-8 h-8 rounded-full bg-[#0F2942] text-white flex items-center justify-center font-bold text-xs">
               01
             </div>
@@ -577,7 +578,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3" data-aos="fade-up" data-aos-delay="200">
             <div className="w-8 h-8 rounded-full bg-[#0F2942] text-white flex items-center justify-center font-bold text-xs">
               02
             </div>
@@ -587,7 +588,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3" data-aos="fade-up" data-aos-delay="300">
             <div className="w-8 h-8 rounded-full bg-[#0F2942] text-white flex items-center justify-center font-bold text-xs">
               03
             </div>
@@ -597,7 +598,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 relative space-y-3" data-aos="fade-up" data-aos-delay="400">
             <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs">
               04
             </div>
@@ -608,7 +609,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-10 text-center" data-aos="fade-up">
           <Link
             href="/admissions"
             className="inline-flex items-center space-x-2 bg-[#0F2942] hover:bg-blue-900 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"
@@ -620,7 +621,7 @@ export default function HomePage() {
       </section>
 
       {/* 6. CAMPUS LOCATION & DIRECT CONTACT CTA */}
-      <section className="bg-linear-to-r from-[#0F2942] to-[#1E3A8A] text-white py-14 px-4 sm:px-8">
+      <section className="bg-linear-to-r from-[#0F2942] to-[#1E3A8A] text-white py-14 px-4 sm:px-8" data-aos="fade-in">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">Visit Our Campus in Bhopal Today</h3>

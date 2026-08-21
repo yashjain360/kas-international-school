@@ -207,10 +207,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-8 flex flex-col justify-center">
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-8 flex flex-col justify-center overflow-x-hidden">
       <div className="max-w-4xl mx-auto w-full space-y-8">
         {/* Top Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2" data-aos="fade-down">
           <Link href="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#0F2942] to-[#1E3A8A] flex items-center justify-center text-amber-400 font-bold shadow-md">
               <GraduationCap className="w-6 h-6" />
@@ -224,7 +224,7 @@ export default function LoginPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Login Card */}
-          <div className="lg:col-span-6 bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 space-y-6">
+          <div className="lg:col-span-6 bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 space-y-6" data-aos="fade-right">
             <div>
               <h2 className="text-xl font-bold text-slate-900">Sign In to Your Portal</h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -284,7 +284,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -294,7 +294,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-[#0F2942] hover:bg-blue-900 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50"
+                className="w-full bg-[#0F2942] hover:bg-blue-900 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
               >
                 <UserCheck className="w-4 h-4 text-amber-400" />
                 <span>{submitting ? 'Verifying Account...' : 'Sign In to Portal'}</span>
@@ -303,7 +303,7 @@ export default function LoginPage() {
           </div>
 
           {/* Right Column: 1-Click QA Account Switcher */}
-          <div className="lg:col-span-6 bg-linear-to-b from-slate-900 to-[#0F2942] text-white p-6 sm:p-7 rounded-2xl shadow-md space-y-5">
+          <div className="lg:col-span-6 bg-linear-to-b from-slate-900 to-[#0F2942] text-white p-6 sm:p-7 rounded-2xl shadow-md space-y-5" data-aos="fade-left">
             <div className="flex items-center justify-between pb-3 border-b border-slate-700">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-amber-400" />
@@ -320,7 +320,7 @@ export default function LoginPage() {
                 <button
                   key={r}
                   onClick={() => setActiveRoleTab(r)}
-                  className={`py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+                  className={`py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
                     activeRoleTab === r
                       ? 'bg-amber-500 text-slate-950 shadow-xs'
                       : 'text-slate-300 hover:text-white'

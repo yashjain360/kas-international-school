@@ -68,10 +68,10 @@ export default function AdmissionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
         {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="text-center space-y-4 max-w-3xl mx-auto" data-aos="fade-up">
           <span className="text-xs font-bold text-amber-800 uppercase tracking-wider bg-amber-100/70 border border-amber-300 px-3.5 py-1.5 rounded-full">
             Admissions Academic Session 2026–2027
           </span>
@@ -86,7 +86,7 @@ export default function AdmissionsPage() {
         {/* 2-Column: Left Guidelines & Checklist, Right Form */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Guidelines & Documents */}
-          <div className="lg:col-span-6 space-y-8">
+          <div className="lg:col-span-6 space-y-8" data-aos="fade-right">
             {/* Age Criteria Table */}
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 space-y-4">
               <h3 className="text-lg font-bold text-[#0F2942] flex items-center">
@@ -178,7 +178,7 @@ export default function AdmissionsPage() {
           </div>
 
           {/* Right Column: Interactive Application Form */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-6" data-aos="fade-left">
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 relative">
               <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-slate-100">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center font-bold">
@@ -307,7 +307,7 @@ export default function AdmissionsPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full bg-[#0F2942] hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50"
+                    className="w-full bg-[#0F2942] hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                   >
                     <Send className="w-4 h-4 text-amber-400" />
                     <span>{submitting ? 'Submitting Application...' : 'Submit Official Admission Application'}</span>
